@@ -160,6 +160,7 @@ public final class View
 		setProjection(gl);
 		drawWalls(gl);
 		drawPlayer(gl);
+		drawGoal(gl, 350, 350);
 
 		// Draw the scene
 		drawMode(drawable);						// Draw mode text
@@ -235,6 +236,33 @@ public final class View
 		gl.glVertex2d(p.x + r, p.y - r);
 		gl.glEnd();
 		
+	}
+	
+	// draw goal of maze with center at provided x, y. 5 pointed star. 
+	private void drawGoal(GL2 gl, double cx, double cy) {
+		
+		double	theta = 0.5 * Math.PI;
+		double	delta = Math.PI / 5;
+
+		gl.glColor3f(255, 255, 0);
+		gl.glBegin(GL.GL_TRIANGLE_FAN);
+		gl.glVertex2d(cx, cy); // center point
+		
+		// draw verticies of star.
+		double r1 = 5;
+		double r2 = 2;
+		
+		for (int i=0; i<5; i++)
+		{
+			gl.glVertex2d(cx + r1 * Math.cos(theta), cy + r1 * Math.sin(theta));
+			theta += delta;
+			
+			gl.glVertex2d(cx + r2 * Math.cos(theta), cy + r2 * Math.sin(theta));
+			theta += delta;
+		}
+		
+		gl.glVertex2d(cx + 5 * Math.cos(theta), cy + 5 * Math.sin(theta));
+		gl.glEnd();
 	}
 	
 	

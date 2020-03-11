@@ -72,7 +72,7 @@ public final class KeyHandler extends KeyAdapter
 				if(model.freeLocation(player.getX() - r - stepSize, player.getY() - r) && 
 						model.freeLocation(player.getX() - r - stepSize, player.getY() + r)) {
 					System.out.println("left");
-					model.movePlayer(-2, 0);
+					model.movePlayer(-stepSize, 0);
 				}
 				return;
 				
@@ -80,7 +80,7 @@ public final class KeyHandler extends KeyAdapter
 				if(model.freeLocation(player.getX() + r + stepSize, player.getY() - r) && 
 						model.freeLocation(player.getX() + r + stepSize, player.getY() + r)) {		
 					System.out.println("right");
-					model.movePlayer(2, 0);
+					model.movePlayer(stepSize, 0);
 				}
 				return;
 				
@@ -88,7 +88,7 @@ public final class KeyHandler extends KeyAdapter
 				if(model.freeLocation(player.getX() - r, player.getY() + r + stepSize) && 
 						model.freeLocation(player.getX() + r, player.getY() + r + stepSize)) {					
 					System.out.println("up");
-					model.movePlayer(0, 2);
+					model.movePlayer(0, stepSize);
 				}
 				return;
 				
@@ -96,7 +96,7 @@ public final class KeyHandler extends KeyAdapter
 				if(model.freeLocation(player.getX() - r, player.getY() - r - stepSize) && 
 						model.freeLocation(player.getX() + r, player.getY() - r - stepSize)) {					
 					System.out.println("down");
-					model.movePlayer(0, -2);
+					model.movePlayer(0, -stepSize);
 				}
 				return;
 				
