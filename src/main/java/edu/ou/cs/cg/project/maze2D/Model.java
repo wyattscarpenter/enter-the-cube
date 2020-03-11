@@ -54,10 +54,12 @@ public final class Model
 	private final View					view;
 
 	// Model variables
-	private Point2D.Double				origin;	// Current origin coords
-	private Point2D.Double				cursor;	// Current cursor coords
+	private Point2D.Double				origin;			// Current origin coords
+	private Point2D.Double				cursor;			// Current cursor coords
 	
 	private Point2D.Double				playerLocation;	// location of player
+	private int							playerRadius;		// size of player (radius)
+	private List<Double[]> 				walls;			// walls in maze
 
 	//**********************************************************************
 	// Constructors and Finalizer
@@ -71,6 +73,9 @@ public final class Model
 		origin = new Point2D.Double(0.0, 0.0);
 		cursor = null;
 		playerLocation = new Point2D.Double(350, 75);
+		walls = new ArrayList<Double[]>();
+		playerRadius = 5;
+		
 
 	}
 
@@ -94,6 +99,23 @@ public final class Model
 	public Point2D.Double 	getPlayerLocation()
 	{
 		return playerLocation;
+	}
+	
+	public int getPlayerRadius()
+	{
+		return playerRadius;
+	}
+	
+	public boolean freeLocation(double x, double y) 
+	{
+		for(int i = 0; i < walls.size(); ++i)
+		{
+			if((x >= walls.get(i)[0] && x <= walls.get(i)[1])
+					&& (y >= walls.get(i)[2] && y <= walls.get(i)[3])) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 
@@ -146,6 +168,12 @@ public final class Model
 				playerLocation.y += y;
 			}
 		});;
+	}
+	
+	public void addWall(double x, double y, double w, double h) 
+	{
+		// left most x, right most x, bottom y, top y
+		walls.add(new Double[]{x, x + w, y, y + h});
 	}
 	
 

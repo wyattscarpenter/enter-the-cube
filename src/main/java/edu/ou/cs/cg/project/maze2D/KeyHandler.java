@@ -38,6 +38,8 @@ public final class KeyHandler extends KeyAdapter
 	// State (internal) variables
 	private final View		view;
 	private final Model	model;
+	
+	private final int stepSize = 2;
 
 	//**********************************************************************
 	// Constructors and Finalizer
@@ -61,27 +63,41 @@ public final class KeyHandler extends KeyAdapter
 	{
 		Point2D.Double	p = model.getOrigin();
 		double			a = (Utilities.isShiftDown(e) ? 0.01 : 0.1);
+		int r = model.getPlayerRadius();
+		Point2D player = model.getPlayerLocation();
 
 		switch (e.getKeyCode())
 		{
 			case KeyEvent.VK_LEFT:
-				System.out.println("left");
-				model.movePlayer(-2, 0);
+				if(model.freeLocation(player.getX() - r - stepSize, player.getY() - r) && 
+						model.freeLocation(player.getX() - r - stepSize, player.getY() + r)) {
+					System.out.println("left");
+					model.movePlayer(-2, 0);
+				}
 				return;
 				
 			case KeyEvent.VK_RIGHT:
-				System.out.println("right");
-				model.movePlayer(2, 0);
+				if(model.freeLocation(player.getX() + r + stepSize, player.getY() - r) && 
+						model.freeLocation(player.getX() + r + stepSize, player.getY() + r)) {		
+					System.out.println("right");
+					model.movePlayer(2, 0);
+				}
 				return;
 				
 			case KeyEvent.VK_UP:
-				System.out.println("up");
-				model.movePlayer(0, 2);
+				if(model.freeLocation(player.getX() - r, player.getY() + r + stepSize) && 
+						model.freeLocation(player.getX() + r, player.getY() + r + stepSize)) {					
+					System.out.println("up");
+					model.movePlayer(0, 2);
+				}
 				return;
 				
 			case KeyEvent.VK_DOWN:
-				System.out.println("down");
-				model.movePlayer(0, -2);
+				if(model.freeLocation(player.getX() - r, player.getY() - r - stepSize) && 
+						model.freeLocation(player.getX() + r, player.getY() - r - stepSize)) {					
+					System.out.println("down");
+					model.movePlayer(0, -2);
+				}
 				return;
 				
 

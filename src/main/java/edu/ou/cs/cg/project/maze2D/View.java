@@ -217,18 +217,22 @@ public final class View
 		gl.glVertex2i(x, y + h);
 
 		gl.glEnd();
+		
+		model.addWall(x, y, w, h);
 	}
 	
 	
 	private void drawPlayer(GL2 gl) {
 		Point2D.Double p = model.getPlayerLocation();
 		
+		int r = model.getPlayerRadius();
+		
 		gl.glColor3f(255, 0, 0);
 		gl.glBegin(GL2.GL_POLYGON);
-		gl.glVertex2d(p.x - 5, p.y - 5);
-		gl.glVertex2d(p.x - 5, p.y + 5);
-		gl.glVertex2d(p.x + 5, p.y + 5);
-		gl.glVertex2d(p.x + 5, p.y - 5);
+		gl.glVertex2d(p.x - r, p.y - r);
+		gl.glVertex2d(p.x - r, p.y + r);
+		gl.glVertex2d(p.x + r, p.y + r);
+		gl.glVertex2d(p.x + r, p.y - r);
 		gl.glEnd();
 		
 	}
