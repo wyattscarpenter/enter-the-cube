@@ -211,8 +211,8 @@ public final class Model
 		{
 			int		h = view.getHeight();
 			double[]	p = Utilities.mapViewToScene(gl, q.x, h - q.y, 0.0);
-			p[0] = p[0] * 2 + 1;
-			p[1] = p[1] * 2;
+			p[0] = p[0] * 2;
+			p[1] = p[1] * 2 - 700;
 			update(p);
 		}
 

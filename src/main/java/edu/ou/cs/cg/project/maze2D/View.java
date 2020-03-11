@@ -159,8 +159,8 @@ public final class View
 		
 		setProjection(gl);
 		drawWalls(gl);
+		drawGoal(gl, 350, 375);
 		drawPlayer(gl);
-		drawGoal(gl, 350, 350);
 
 		// Draw the scene
 		drawMode(drawable);						// Draw mode text
@@ -206,16 +206,60 @@ public final class View
 		drawWall(gl, 310, 35, 20, 40);
 		drawWall(gl, 370, 35, 20, 40);
 		drawWall(gl, 330, 35, 40, 20);
+		
+		
+		
+		gl.glColor3f(0, 0, 255);
+		drawWall(gl, 70, 147.5, 560, 20);
+		drawWall(gl, 70, 220, 560, 20);
+		drawWall(gl, 70, 292.5, 560, 20);
+		drawWall(gl, 70, 365, 560, 20);
+		drawWall(gl, 70, 437.5, 560, 20);
+		drawWall(gl, 70, 510, 560, 20);
+		drawWall(gl, 70, 582.5, 560, 20);
+		
+		drawWall(gl, 122.5, 95, 20, 560);
+		drawWall(gl, 195, 95, 20, 560);
+		drawWall(gl, 267.5, 95, 20, 560);
+		drawWall(gl, 340, 95, 20, 560);
+		drawWall(gl, 412.5, 95, 20, 560);
+		drawWall(gl, 485, 95, 20, 560);
+		drawWall(gl, 557.5, 95, 20, 560);
+		
+		// draw inner maze walls
+		
+		gl.glColor3f(0, 255, 0);
+		drawWall(gl, 267.5, 95, 20, 72.5);
+		drawWall(gl, 287.5, 147.5, 290, 20);
+		drawWall(gl, 557.5, 167.5, 20, 72.5);
+		drawWall(gl, 215, 220, 342.5, 20);
+		drawWall(gl, 485, 240, 20, 270);
+		drawWall(gl, 557.5, 292.5, 72.5, 20);
+		drawWall(gl, 557.5, 312.5, 20, 72.5);
+		drawWall(gl, 557.5, 437.5, 20, 165);
+		drawWall(gl, 412.5, 582.5, 165, 20);
+		drawWall(gl, 267.5, 510, 290, 20);
+		drawWall(gl, 412.5, 292.5, 20, 217.5);
+		drawWall(gl, 267.5, 292.5, 145, 20);
+		drawWall(gl, 267.5, 312.5, 20, 145);
+		drawWall(gl, 287.5, 437.5, 72.5, 20);
+		drawWall(gl, 122.5, 582.5, 237.5, 20);
+		drawWall(gl, 122.5, 510.0, 20, 72.5);
+		drawWall(gl, 195, 147.5, 20, 435);
+		drawWall(gl, 70, 437.5, 72.5, 20);
+		drawWall(gl, 122.5, 365, 72.5, 20);
+		drawWall(gl, 122.5, 147.5, 72.5, 20);
+		drawWall(gl, 122.5, 167.5, 20, 145);
 	}
 
 
-	private void drawWall(GL2 gl, int x, int y, int w, int h) {
+	private void drawWall(GL2 gl, double x, double y, double w, double h) {
 		gl.glBegin(GL2.GL_POLYGON);
 		
-		gl.glVertex2i(x, y);
-		gl.glVertex2i(x + w, y);
-		gl.glVertex2i(x + w, y + h);
-		gl.glVertex2i(x, y + h);
+		gl.glVertex2d(x, y);
+		gl.glVertex2d(x + w, y);
+		gl.glVertex2d(x + w, y + h);
+		gl.glVertex2d(x, y + h);
 
 		gl.glEnd();
 		
