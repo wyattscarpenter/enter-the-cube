@@ -208,27 +208,7 @@ public final class View
 		drawWall(gl, 330, 35, 40, 20);
 		
 		
-		
-		gl.glColor3f(0, 0, 255);
-		drawWall(gl, 70, 147.5, 560, 20);
-		drawWall(gl, 70, 220, 560, 20);
-		drawWall(gl, 70, 292.5, 560, 20);
-		drawWall(gl, 70, 365, 560, 20);
-		drawWall(gl, 70, 437.5, 560, 20);
-		drawWall(gl, 70, 510, 560, 20);
-		drawWall(gl, 70, 582.5, 560, 20);
-		
-		drawWall(gl, 122.5, 95, 20, 560);
-		drawWall(gl, 195, 95, 20, 560);
-		drawWall(gl, 267.5, 95, 20, 560);
-		drawWall(gl, 340, 95, 20, 560);
-		drawWall(gl, 412.5, 95, 20, 560);
-		drawWall(gl, 485, 95, 20, 560);
-		drawWall(gl, 557.5, 95, 20, 560);
-		
 		// draw inner maze walls
-		
-		gl.glColor3f(0, 255, 0);
 		drawWall(gl, 267.5, 95, 20, 72.5);
 		drawWall(gl, 287.5, 147.5, 290, 20);
 		drawWall(gl, 557.5, 167.5, 20, 72.5);
