@@ -170,6 +170,18 @@ public final class Model
 		});;
 	}
 	
+	public void setPlayer(double x, double y)
+	{
+		view.getCanvas().invoke(false, new BasicUpdater() {
+			public void update(GL2 gl) {
+				playerLocation.x = x;
+				playerLocation.y = y;
+			}
+		});;
+	
+		
+	}
+	
 	public void addWall(double x, double y, double w, double h) 
 	{
 		// left most x, right most x, bottom y, top y

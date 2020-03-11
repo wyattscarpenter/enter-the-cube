@@ -17,6 +17,7 @@ package edu.ou.cs.cg.project.maze2D;
 
 //import java.lang.*;
 import java.awt.Component;
+import java.awt.Point;
 import java.awt.event.*;
 import java.awt.geom.Point2D;
 import edu.ou.cs.cg.utilities.Utilities;
@@ -39,7 +40,7 @@ public final class KeyHandler extends KeyAdapter
 	private final View		view;
 	private final Model	model;
 	
-	private final int stepSize = 2;
+	private final int stepSize = 5;
 
 	//**********************************************************************
 	// Constructors and Finalizer
@@ -71,32 +72,32 @@ public final class KeyHandler extends KeyAdapter
 			case KeyEvent.VK_LEFT:
 				if(model.freeLocation(player.getX() - r - stepSize, player.getY() - r) && 
 						model.freeLocation(player.getX() - r - stepSize, player.getY() + r)) {
-					System.out.println("left");
 					model.movePlayer(-stepSize, 0);
+					playerReachGoal(player.getX() - stepSize, player.getY());
 				}
 				return;
 				
 			case KeyEvent.VK_RIGHT:
 				if(model.freeLocation(player.getX() + r + stepSize, player.getY() - r) && 
 						model.freeLocation(player.getX() + r + stepSize, player.getY() + r)) {		
-					System.out.println("right");
 					model.movePlayer(stepSize, 0);
+					playerReachGoal(player.getX() + stepSize, player.getY());
 				}
 				return;
 				
 			case KeyEvent.VK_UP:
 				if(model.freeLocation(player.getX() - r, player.getY() + r + stepSize) && 
 						model.freeLocation(player.getX() + r, player.getY() + r + stepSize)) {					
-					System.out.println("up");
 					model.movePlayer(0, stepSize);
+					playerReachGoal(player.getX(), player.getY() + stepSize);
 				}
 				return;
 				
 			case KeyEvent.VK_DOWN:
 				if(model.freeLocation(player.getX() - r, player.getY() - r - stepSize) && 
 						model.freeLocation(player.getX() + r, player.getY() - r - stepSize)) {					
-					System.out.println("down");
 					model.movePlayer(0, -stepSize);
+					playerReachGoal(player.getX(), player.getY() - stepSize);
 				}
 				return;
 				
@@ -104,6 +105,12 @@ public final class KeyHandler extends KeyAdapter
 		}
 
 		model.setOriginInSceneCoordinates(p);
+	}
+	
+	private void 	playerReachGoal(double x, double y) {
+		if(x >= 345 && x <= 355 && y >= 370 && y <= 380) {
+			model.setPlayer(350, 75);
+		}
 	}
 }
 
