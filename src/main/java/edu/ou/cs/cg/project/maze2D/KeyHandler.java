@@ -102,7 +102,12 @@ public final class KeyHandler extends KeyAdapter
 				return;
 			case KeyEvent.VK_SPACE:
 				model.skewed = !model.skewed;
+				model.viewWalls = true;
 				return; // why do we return instead of break here? \:
+				
+			case KeyEvent.VK_C:
+				model.viewWalls = !model.viewWalls;
+				return;
 		}
 
 		model.setOriginInSceneCoordinates(p);
@@ -111,6 +116,7 @@ public final class KeyHandler extends KeyAdapter
 	private void 	playerReachGoal(double x, double y) {
 		if(x >= 345 && x <= 355 && y >= 370 && y <= 380) {
 			model.setPlayer(350, 75);
+			model.viewWalls = !model.viewWalls;
 		}
 	}
 }

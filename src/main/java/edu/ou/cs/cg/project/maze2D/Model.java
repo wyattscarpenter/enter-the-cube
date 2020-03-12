@@ -61,6 +61,7 @@ public final class Model
 	private int							playerRadius;		// size of player (radius)
 	private List<Double[]> 				walls;			// walls in maze
 	public boolean skewed;
+	public boolean viewWalls;
 
 	//**********************************************************************
 	// Constructors and Finalizer
@@ -75,7 +76,7 @@ public final class Model
 		cursor = null;
 		playerLocation = new Point2D.Double(350, 75);
 		walls = new ArrayList<Double[]>();
-		playerRadius = 5;
+		playerRadius = 10;
 		
 
 	}

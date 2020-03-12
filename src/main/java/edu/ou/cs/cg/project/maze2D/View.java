@@ -154,8 +154,8 @@ public final class View
 	private void	render(GLAutoDrawable drawable)
 	{
 		GL2	gl = drawable.getGL().getGL2();
-
-		gl.glClear(GL.GL_COLOR_BUFFER_BIT);		// Clear the buffer
+		if(model.viewWalls)
+			gl.glClear(GL.GL_COLOR_BUFFER_BIT);		// Clear the buffer
 		
 		setProjection(gl);
 		drawWalls(gl);
@@ -190,6 +190,7 @@ public final class View
 			glu.gluPerspective(60, 1, 1, 10000);
 			gl.glMatrixMode(GL2.GL_MODELVIEW);
 			gl.glLoadIdentity();
+			// divide by 2. on mac divide by 4.
 			gl.glTranslatef((float) -w / 2, (float) -h / 2, -600f);
 			//move the camera to skew the playing field
 			glu.gluLookAt(0, -10, 0, 0, 4, -1, 0, 1, 0);
@@ -208,7 +209,10 @@ public final class View
 	//**********************************************************************
 	
 	private void drawWalls(GL2 gl) {
-		gl.glColor3f(0, 255, 0);
+		if(model.viewWalls)
+			gl.glColor3f(0, 255, 0);
+		else
+			gl.glColor3f(0, 0, 0);
 		drawWall(gl, 50, 75, 20, 600);	// right wall
 		drawWall(gl, 70, 655, 560, 20);	// upper wall
 		drawWall(gl, 630, 75, 20, 600); // left wall 
