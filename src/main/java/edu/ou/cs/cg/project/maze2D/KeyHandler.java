@@ -100,8 +100,9 @@ public final class KeyHandler extends KeyAdapter
 					playerReachGoal(player.getX(), player.getY() - stepSize);
 				}
 				return;
-				
-
+			case KeyEvent.VK_SPACE:
+				model.skewed = !model.skewed;
+				return; // why do we return instead of break here? \:
 		}
 
 		model.setOriginInSceneCoordinates(p);

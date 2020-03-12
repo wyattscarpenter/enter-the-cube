@@ -60,6 +60,7 @@ public final class Model
 	private Point2D.Double				playerLocation;	// location of player
 	private int							playerRadius;		// size of player (radius)
 	private List<Double[]> 				walls;			// walls in maze
+	public boolean skewed;
 
 	//**********************************************************************
 	// Constructors and Finalizer

@@ -180,14 +180,27 @@ public final class View
 	}
 	
 	// Position and orient the default camera to view in 2-D, in pixel coords.
-	private void	setProjection(GL2 gl)
-	{
-		GLU	glu = new GLU();
+	private void setProjection(GL2 gl) {
+		GLU glu = new GLU();
 
-		gl.glMatrixMode(GL2.GL_PROJECTION);		// Prepare for matrix xform
-		gl.glLoadIdentity();						// Set to identity matrix
-		glu.gluOrtho2D(0.0f, Application.DEFAULT_SIZE.getWidth(), 
-				0.0f, Application.DEFAULT_SIZE.getHeight()); // 2D translate and scale
+		gl.glMatrixMode(GL2.GL_PROJECTION); // Prepare for matrix xform
+		gl.glLoadIdentity(); // Set to identity matrix
+		if (model.skewed) {
+			//set up the camera and position to accommodate 3D
+			glu.gluPerspective(60, 1, 1, 10000);
+			gl.glMatrixMode(GL2.GL_MODELVIEW);
+			gl.glLoadIdentity();
+			gl.glTranslatef((float) -w / 2, (float) -h / 2, -600f);
+			//move the camera to skew the playing field
+			glu.gluLookAt(0, -10, 0, 0, 4, -1, 0, 1, 0);
+		} else {
+			//2D translate and scale
+			glu.gluOrtho2D(0.0f, Application.DEFAULT_SIZE.getWidth(), 0.0f, Application.DEFAULT_SIZE.getHeight());
+			//reset any skewed positioning to regular positioning
+			gl.glMatrixMode(GL2.GL_MODELVIEW);
+			gl.glLoadIdentity();
+		}
+
 	}
 
 	//**********************************************************************
