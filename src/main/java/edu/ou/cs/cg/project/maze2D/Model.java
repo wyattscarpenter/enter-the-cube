@@ -55,7 +55,7 @@ public final class Model
 
 	// Model variables
 	private Point2D.Double				origin;			// Current origin coords
-	public Point2D.Double				cursor = new Point2D.Double(0, 0);			// Current cursor coords
+	public Point2D.Double				cursor = new Point2D.Double(350, 350);			// Current cursor coords
 	
 	public Point2D.Double				playerLocation;	// location of player
 	private int							playerRadius;		// size of player (radius)

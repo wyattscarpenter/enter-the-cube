@@ -202,12 +202,14 @@ public final class View
 			glu.gluPerspective(60, 1, 1, 10000);
 			//this in part deals with some funkiness regarding how we set up coordinates
 			//when we switch to actual 3D coordinates we'll have to figure this out again
-			glu.gluLookAt(model.playerLocation.x, model.playerLocation.y-10, 10, //hover right above the red square
-					model.playerLocation.x+(-300+model.cursor.x)/10, model.playerLocation.y, 10-model.cursor.y/60, //look at an imaginary point that's in a good place
-					0, 0, 1);
-				//glu.gluLookAt(0+model.playerLocation.x, -10+model.playerLocation.y, 0, 0, 4, -1, 0, 1, 0);
-
-				//glu.gluLookAt(0, -10, 0, 0+model.cursor.x/100.0, 4+model.cursor.y/100.0, -1, 0, 1, 0);
+			//remember that our mouse coordinates are both 0-700 in Cartesian I right now.
+			//our x and y are with respect to the maze plane and our z is up out of the plane
+			//so we have to do some trig to find a nice point to look at i guess
+			double lookleftright = model.playerLocation.x + Math.cos((w-model.cursor.x)/(20*Math.PI));
+			double lookforwardbackward = model.playerLocation.y + Math.sin((w-model.cursor.x)/(20*Math.PI));
+			glu.gluLookAt(model.playerLocation.x, model.playerLocation.y, 10, //hover right above the red square
+					lookleftright, lookforwardbackward, 5+10-model.cursor.y/60, //look at an imaginary point that's in a good place
+					0, 0, 1); //up is up
 
 		} else {
 			//2D translate and scale
