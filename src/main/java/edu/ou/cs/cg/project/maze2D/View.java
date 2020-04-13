@@ -202,7 +202,9 @@ public final class View
 			glu.gluPerspective(60, 1, 1, 10000);
 			//this in part deals with some funkiness regarding how we set up coordinates
 			//when we switch to actual 3D coordinates we'll have to figure this out again
-			glu.gluLookAt(model.playerLocation.x, model.playerLocation.y-10, 10, model.playerLocation.x, model.playerLocation.y, 10, 0, 0, 1);
+			glu.gluLookAt(model.playerLocation.x, model.playerLocation.y-10, 10, //hover right above the red square
+					model.playerLocation.x+(-300+model.cursor.x)/10, model.playerLocation.y, 10-model.cursor.y/60, //look at an imaginary point that's in a good place
+					0, 0, 1);
 				//glu.gluLookAt(0+model.playerLocation.x, -10+model.playerLocation.y, 0, 0, 4, -1, 0, 1, 0);
 
 				//glu.gluLookAt(0, -10, 0, 0+model.cursor.x/100.0, 4+model.cursor.y/100.0, -1, 0, 1, 0);
@@ -325,16 +327,14 @@ public final class View
 		GL2		gl = drawable.getGL().getGL2();
 		double[]	p = Utilities.mapViewToScene(gl, 0.5 * w, 0.5 * h, 0.0);
 		double[]	q = Utilities.mapSceneToView(gl, 0.0, 0.0, 0.0);
-		String		svc = ("View center in scene: [" + FORMAT.format(p[0]) +
-						   " , " + FORMAT.format(p[1]) + "]");
-		String		sso = ("Scene origin in view: [" + FORMAT.format(q[0]) +
-						   " , " + FORMAT.format(q[1]) + "]");
+		String		svc = ("View center in scene: [" + p[0] +", "+ p[1] + "]");
+		String		sso = ("Scene origin in view: [" + q[0]+", "+ q[1] + "]");
 
 		renderer.beginRendering(w, h);
 
 		// Draw all text in yellow
 		renderer.setColor(1.0f, 1.0f, 0.0f, 1.0f);
-		renderer.draw("Pointer at (" + model.cursor.y + "," + model.cursor.y + ")", 2, 2);
+		renderer.draw("Pointer at (" + model.cursor.x + "," + model.cursor.y + ")", 2, 2);
 
 		renderer.draw(svc, 2, 16);
 		renderer.draw(sso, 2, 30);

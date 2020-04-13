@@ -64,12 +64,12 @@ public final class MouseHandler extends MouseAdapter
 
 	public void		mouseEntered(MouseEvent e)
 	{
-		model.setCursorInViewCoordinates(e.getPoint());
+		//this should be covered by mouse move
+		//model.setCursorInViewCoordinates(e.getPoint());
 	}
 
 	public void		mouseExited(MouseEvent e)
 	{
-		//model.turnCursorOff();
 	}
 
 	public void		mousePressed(MouseEvent e)
@@ -90,7 +90,10 @@ public final class MouseHandler extends MouseAdapter
 
 	public void		mouseMoved(MouseEvent e)
 	{
-		model.setCursorInViewCoordinates(e.getPoint());
+		//model.setCursorInViewCoordinates(e.getPoint());
+		//VIEW COORDINATES? WE DON'T NEED NO STINKIN VIEW COORDINATES!
+		model.cursor.x = e.getPoint().x;
+		model.cursor.y = e.getPoint().y;
 	}
 
 	//**********************************************************************
