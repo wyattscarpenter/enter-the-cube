@@ -55,9 +55,9 @@ public final class Model
 
 	// Model variables
 	private Point2D.Double				origin;			// Current origin coords
-	private Point2D.Double				cursor;			// Current cursor coords
+	public Point2D.Double				cursor = new Point2D.Double(0, 0);			// Current cursor coords
 	
-	private Point2D.Double				playerLocation;	// location of player
+	public Point2D.Double				playerLocation;	// location of player
 	private int							playerRadius;		// size of player (radius)
 	private List<Double[]> 				walls;			// walls in maze
 	public boolean skewed;
@@ -73,7 +73,6 @@ public final class Model
 
 		// Initialize user-adjustable variables (with reasonable default values)
 		origin = new Point2D.Double(0.0, 0.0);
-		cursor = null;
 		playerLocation = new Point2D.Double(350, 75);
 		walls = new ArrayList<Double[]>();
 		playerRadius = 10;
@@ -90,14 +89,6 @@ public final class Model
 		return new Point2D.Double(origin.x, origin.y);
 	}
 
-	public Point2D.Double	getCursor()
-	{
-		if (cursor == null)
-			return null;
-		else
-			return new Point2D.Double(cursor.x, cursor.y);
-	}
-	
 	public Point2D.Double 	getPlayerLocation()
 	{
 		return playerLocation;
@@ -148,16 +139,8 @@ public final class Model
 	{
 		view.getCanvas().invoke(false, new ViewPointUpdater(q) {
 			public void	update(double[] p) {
-				cursor = new Point2D.Double(p[0], p[1]);
-			}
-		});;
-	}
-
-	public void	turnCursorOff()
-	{
-		view.getCanvas().invoke(false, new BasicUpdater() {
-			public void	update(GL2 gl) {
-				cursor = null;
+				cursor.x = p[0];
+				cursor.y = p[1];
 			}
 		});;
 	}

@@ -69,7 +69,7 @@ public final class MouseHandler extends MouseAdapter
 
 	public void		mouseExited(MouseEvent e)
 	{
-		model.turnCursorOff();
+		//model.turnCursorOff();
 	}
 
 	public void		mousePressed(MouseEvent e)

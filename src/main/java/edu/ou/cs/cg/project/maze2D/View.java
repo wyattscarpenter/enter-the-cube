@@ -161,11 +161,23 @@ public final class View
 		drawWalls(gl);
 		drawGoal(gl, 350, 375);
 		drawPlayer(gl);
+		//drawAxes(gl); //ruins program
 
 		// Draw the scene
 		drawMode(drawable);						// Draw mode text
 
 		gl.glFlush();								// Finish and display
+	}
+
+	private void drawAxes(GL2 gl) {
+        gl.glBegin(GL2.GL_LINE);
+        gl.glColor3f(255, 0, 0);
+		gl.glVertex2d(0, 0);
+		gl.glVertex2d(1000, 0);
+		gl.glColor3f(0, 255, 0);
+		gl.glVertex2d(0, 0);
+		gl.glVertex2d(0, 1000);
+		gl.glEnd();
 	}
 
 	//**********************************************************************
@@ -188,12 +200,13 @@ public final class View
 		if (model.skewed) {
 			//set up the camera and position to accommodate 3D
 			glu.gluPerspective(60, 1, 1, 10000);
-			gl.glMatrixMode(GL2.GL_MODELVIEW);
-			gl.glLoadIdentity();
-			// divide by 2. on mac divide by 4.
-			gl.glTranslatef((float) -w / 2, (float) -h / 2, -600f);
-			//move the camera to skew the playing field
-			glu.gluLookAt(0, -10, 0, 0, 4, -1, 0, 1, 0);
+			//this in part deals with some funkiness regarding how we set up coordinates
+			//when we switch to actual 3D coordinates we'll have to figure this out again
+			glu.gluLookAt(model.playerLocation.x, model.playerLocation.y-10, 10, model.playerLocation.x, model.playerLocation.y, 10, 0, 0, 1);
+				//glu.gluLookAt(0+model.playerLocation.x, -10+model.playerLocation.y, 0, 0, 4, -1, 0, 1, 0);
+
+				//glu.gluLookAt(0, -10, 0, 0+model.cursor.x/100.0, 4+model.cursor.y/100.0, -1, 0, 1, 0);
+
 		} else {
 			//2D translate and scale
 			glu.gluOrtho2D(0.0f, Application.DEFAULT_SIZE.getWidth(), 0.0f, Application.DEFAULT_SIZE.getHeight());
@@ -201,7 +214,6 @@ public final class View
 			gl.glMatrixMode(GL2.GL_MODELVIEW);
 			gl.glLoadIdentity();
 		}
-
 	}
 
 	//**********************************************************************
@@ -322,21 +334,7 @@ public final class View
 
 		// Draw all text in yellow
 		renderer.setColor(1.0f, 1.0f, 0.0f, 1.0f);
-
-		Point2D.Double	cursor = model.getCursor();
-
-		if (cursor != null)
-		{
-			String		sx = FORMAT.format(new Double(cursor.x));
-			String		sy = FORMAT.format(new Double(cursor.y));
-			String		s = "Pointer at (" + sx + "," + sy + ")";
-
-			renderer.draw(s, 2, 2);
-		}
-		else
-		{
-			renderer.draw("No Pointer", 2, 2);
-		}
+		renderer.draw("Pointer at (" + model.cursor.y + "," + model.cursor.y + ")", 2, 2);
 
 		renderer.draw(svc, 2, 16);
 		renderer.draw(sso, 2, 30);
