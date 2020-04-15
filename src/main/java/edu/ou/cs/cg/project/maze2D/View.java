@@ -55,6 +55,7 @@ public final class View
 	private int						w;			// Canvas width
 	private int						h;			// Canvas height
 
+
 	private TextRenderer				renderer;
 
 	private final FPSAnimator			animator;
@@ -64,6 +65,8 @@ public final class View
 
 	private final KeyHandler			keyHandler;
 	public final MouseHandler			mouseHandler;
+	
+	private double wallHeight = 20;
 
 	//**********************************************************************
 	// Constructors and Finalizer
@@ -266,17 +269,45 @@ public final class View
 	}
 
 
-	private void drawWall(GL2 gl, double x, double y, double w, double h) {
-		gl.glBegin(GL2.GL_POLYGON);
+	private void drawWall(GL2 gl, double x, double y, double w, double l) {
+		gl.glBegin(GL2.GL_QUADS);
 		
-		gl.glVertex2d(x, y);
-		gl.glVertex2d(x + w, y);
-		gl.glVertex2d(x + w, y + h);
-		gl.glVertex2d(x, y + h);
-
+		// bottom
+		gl.glVertex3d(x, y, 0);
+		gl.glVertex3d(x + w, y, 0);
+		gl.glVertex3d(x + w, y + l, 0);
+		gl.glVertex3d(x, y + l, 0);
+		
+		// top
+		gl.glVertex3d(x, y, wallHeight);
+		gl.glVertex3d(x + w, y, wallHeight);
+		gl.glVertex3d(x + w, y + l, wallHeight);
+		gl.glVertex3d(x, y + l, wallHeight);
+		
+		// left
+		gl.glVertex3d(x, y, wallHeight);
+		gl.glVertex3d(x, y + l, wallHeight);
+		gl.glVertex3d(x, y + l, 0);
+		gl.glVertex3d(x, y, 0);
+		// right
+		gl.glVertex3d(x + w, y, wallHeight);
+		gl.glVertex3d(x + w, y + l, wallHeight);
+		gl.glVertex3d(x + w, y + l, 0);
+		gl.glVertex3d(x + w, y, 0);
+		
+		// front
+		gl.glVertex3d(x, y, wallHeight);
+		gl.glVertex3d(x + w, y, wallHeight);
+		gl.glVertex3d(x + w, y, 0);
+		gl.glVertex3d(x, y, 0);
+		// back
+		gl.glVertex3d(x, y + l, wallHeight);
+		gl.glVertex3d(x + w, y + l, wallHeight);
+		gl.glVertex3d(x + w, y + l, 0);
+		gl.glVertex3d(x, y + l, 0);
 		gl.glEnd();
 		
-		model.addWall(x, y, w, h);
+		model.addWall(x, y, w, l);
 	}
 	
 	
