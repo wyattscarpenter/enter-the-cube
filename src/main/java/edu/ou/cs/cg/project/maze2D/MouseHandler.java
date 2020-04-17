@@ -92,8 +92,7 @@ public final class MouseHandler extends MouseAdapter
 	{
 		//model.setCursorInViewCoordinates(e.getPoint());
 		//VIEW COORDINATES? WE DON'T NEED NO STINKIN VIEW COORDINATES!
-		model.cursor.x = e.getPoint().x;
-		model.cursor.y = e.getPoint().y;
+		model.mouselook(e.getPoint());
 	}
 
 	//**********************************************************************

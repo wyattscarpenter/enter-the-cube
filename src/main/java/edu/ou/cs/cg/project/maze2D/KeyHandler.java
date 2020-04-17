@@ -62,44 +62,30 @@ public final class KeyHandler extends KeyAdapter
 
 	public void		keyPressed(KeyEvent e)
 	{
-		Point2D.Double	p = model.getOrigin();
 		double			a = (Utilities.isShiftDown(e) ? 0.01 : 0.1);
-		int r = model.getPlayerRadius();
-		Point2D player = model.getPlayerLocation();
 
 		switch (e.getKeyCode())
 		{
 			case KeyEvent.VK_LEFT:
-				if(model.freeLocation(player.getX() - r - stepSize, player.getY() - r) && 
-						model.freeLocation(player.getX() - r - stepSize, player.getY() + r)) {
-					model.movePlayer(-stepSize, 0);
-					playerReachGoal(player.getX() - stepSize, player.getY());
-				}
-				return;
+			case KeyEvent.VK_A:
+				model.goLeft();
+			break;
 				
 			case KeyEvent.VK_RIGHT:
-				if(model.freeLocation(player.getX() + r + stepSize, player.getY() - r) && 
-						model.freeLocation(player.getX() + r + stepSize, player.getY() + r)) {		
-					model.movePlayer(stepSize, 0);
-					playerReachGoal(player.getX() + stepSize, player.getY());
-				}
-				return;
+			case KeyEvent.VK_D:
+				model.goRight();
+			break;
 				
 			case KeyEvent.VK_UP:
-				if(model.freeLocation(player.getX() - r, player.getY() + r + stepSize) && 
-						model.freeLocation(player.getX() + r, player.getY() + r + stepSize)) {					
-					model.movePlayer(0, stepSize);
-					playerReachGoal(player.getX(), player.getY() + stepSize);
-				}
-				return;
+			case KeyEvent.VK_W:
+				model.goForward();
+			break;
 				
 			case KeyEvent.VK_DOWN:
-				if(model.freeLocation(player.getX() - r, player.getY() - r - stepSize) && 
-						model.freeLocation(player.getX() + r, player.getY() - r - stepSize)) {					
-					model.movePlayer(0, -stepSize);
-					playerReachGoal(player.getX(), player.getY() - stepSize);
-				}
-				return;
+			case KeyEvent.VK_S:
+				model.goBack();
+			break;
+
 			case KeyEvent.VK_SPACE:
 				model.skewed = !model.skewed;
 				model.viewWalls = true;
@@ -110,14 +96,7 @@ public final class KeyHandler extends KeyAdapter
 				return;
 		}
 
-		model.setOriginInSceneCoordinates(p);
-	}
-	
-	private void 	playerReachGoal(double x, double y) {
-		if(x >= 345 && x <= 355 && y >= 370 && y <= 380) {
-			model.setPlayer(350, 75);
-			model.viewWalls = !model.viewWalls;
-		}
+		model.setOriginInSceneCoordinates(model.getOrigin());
 	}
 }
 

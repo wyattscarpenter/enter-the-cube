@@ -203,6 +203,7 @@ public final class View
 		if (model.skewed) {
 			//set up the camera and position to accommodate 3D
 			glu.gluPerspective(60, 1, 1, 10000);
+			/*
 			//this in part deals with some funkiness regarding how we set up coordinates
 			//when we switch to actual 3D coordinates we'll have to figure this out again
 			//remember that our mouse coordinates are both 0-700 in Cartesian I right now.
@@ -213,7 +214,13 @@ public final class View
 			glu.gluLookAt(model.playerLocation.x, model.playerLocation.y, 10, //hover right above the red square
 					lookleftright, lookforwardbackward, 5+10-model.cursor.y/60, //look at an imaginary point that's in a good place
 					0, 0, 1); //up is up
-
+*/
+			glu.gluLookAt(
+					 //hover right above the red square
+					model.playerLocation.x, model.playerLocation.y, model.playerLocation.z,
+					 //look at an imaginary point that's in a good place
+					model.playerLocation.x + model.lookPoint.x, model.playerLocation.y + model.lookPoint.y, model.playerLocation.z + model.lookPoint.z,
+					0, 0, 1); //up is up
 		} else {
 			//2D translate and scale
 			glu.gluOrtho2D(0.0f, Application.DEFAULT_SIZE.getWidth(), 0.0f, Application.DEFAULT_SIZE.getHeight());
@@ -312,7 +319,7 @@ public final class View
 	
 	
 	private void drawPlayer(GL2 gl) {
-		Point2D.Double p = model.getPlayerLocation();
+		Point2D.Double p = new Point2D.Double(model.playerLocation.x,model.playerLocation.y);
 		
 		int r = model.getPlayerRadius();
 		
