@@ -89,11 +89,19 @@ public final class KeyHandler extends KeyAdapter
 			case KeyEvent.VK_SPACE:
 				model.skewed = !model.skewed;
 				model.viewWalls = true;
-				return; // why do we return instead of break here? \:
-				
+			break;
+
 			case KeyEvent.VK_C:
 				model.viewWalls = !model.viewWalls;
 				return;
+
+			case KeyEvent.VK_SHIFT:
+				model.sprint();
+			break;
+
+			case KeyEvent.VK_CONTROL:
+				model.crouch();
+			break;
 		}
 
 		model.setOriginInSceneCoordinates(model.getOrigin());

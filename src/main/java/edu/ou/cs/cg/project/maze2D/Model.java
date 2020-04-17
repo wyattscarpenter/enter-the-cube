@@ -62,7 +62,7 @@ public final class Model
 	private List<Double[]> 				walls;			// walls in maze
 	public boolean skewed;
 	public boolean viewWalls = true;
-	private final int stepSize = 5;	//it's 5
+	private double stepSize = 5;	//it's 5
 	public Point3D lookPoint = new Point3D(); //relative to player location
 
 	//**********************************************************************
@@ -285,9 +285,18 @@ public final class Model
 	}
 
 	public void mouselook(Point point) {
-		lookPoint.x = Math.cos((view.getWidth()-point.x)/(20*Math.PI));
-		lookPoint.y = Math.sin((view.getWidth()-point.x)/(20*Math.PI));
-		lookPoint.z = 5.0-point.y/60.0;
+		lookPoint.x = Math.cos((view.getWidth()-point.x)/(20*Math.PI))*stepSize;
+		lookPoint.y = Math.sin((view.getWidth()-point.x)/(20*Math.PI))*stepSize;
+		lookPoint.z = 5.0-point.y/60.0*stepSize;
+	}
+
+	public void sprint() {
+		stepSize*=1.1;
+		System.out.println(stepSize);
+	}
+
+	public void crouch() {
+		stepSize/=1.1;
 	}
 }
 
