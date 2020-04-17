@@ -19,6 +19,7 @@ package edu.ou.cs.cg.project.maze2D;
 //import java.lang.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.nio.FloatBuffer;
 import java.text.DecimalFormat;
 import java.util.List;
 import com.jogamp.opengl.*;
@@ -26,6 +27,7 @@ import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.glu.*;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.awt.TextRenderer;
+
 import edu.ou.cs.cg.utilities.Utilities;
 
 //******************************************************************************
@@ -158,7 +160,8 @@ public final class View
 	{
 		GL2	gl = drawable.getGL().getGL2();
 		if(model.viewWalls)
-			gl.glClear(GL.GL_COLOR_BUFFER_BIT);		// Clear the buffer
+	      gl.glClear( GL2.GL_COLOR_BUFFER_BIT |  
+	    	      GL2.GL_DEPTH_BUFFER_BIT );
 		
 		setProjection(gl);
 		drawWalls(gl);
@@ -201,6 +204,13 @@ public final class View
 		gl.glMatrixMode(GL2.GL_PROJECTION); // Prepare for matrix xform
 		gl.glLoadIdentity(); // Set to identity matrix
 		if (model.skewed) {
+
+		    
+		    
+		    
+		    
+			
+			
 			//set up the camera and position to accommodate 3D
 			glu.gluPerspective(60, 1, 1, 10000);
 			//this in part deals with some funkiness regarding how we set up coordinates
@@ -211,10 +221,54 @@ public final class View
 			double lookleftright = model.playerLocation.x + Math.cos((w-model.cursor.x)/(20*Math.PI));
 			double lookforwardbackward = model.playerLocation.y + Math.sin((w-model.cursor.x)/(20*Math.PI));
 			glu.gluLookAt(model.playerLocation.x, model.playerLocation.y, 10, //hover right above the red square
-					lookleftright, lookforwardbackward, 5+10-model.cursor.y/60, //look at an imaginary point that's in a good place
+					lookleftright, lookforwardbackward, 20*(1-model.cursor.y/700), //look at an imaginary point that's in a good place
 					0, 0, 1); //up is up
+			
+			
+			
+
+		
+			w = 700;
+		    
+		    float[] pos = {(float) model.playerLocation.x,(float) model.playerLocation.y,10f, 1f};
+			
+		    gl.glEnable( gl.GL_LIGHTING ); 
+		    gl.glEnable( gl.GL_LIGHT0 );
+		    gl.glEnable( gl.GL_DEPTH_TEST ); 
+		    
+		    //gl.glShadeModel(gl.GL_FLAT);
+
+
+		    
+		    
+		    float[] ambient = {0f, 0f, 1f, 1f};
+		    float[] diffuse = {0f, 0f, 1f, 1f};
+		    float[] specular = {1f, 1f, 1f, 1f};
+		    
+		    gl.glLightfv(gl.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
+		    gl.glLightfv(gl.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
+		    gl.glLightfv(gl.GL_LIGHT0, GL2.GL_SPECULAR, specular, 0);
+	        
+	        gl.glLightfv(gl.GL_LIGHT0, GL2.GL_POSITION, pos, 0);
+	        
+	        
+	        //gl.glLightf(gl.GL_LIGHT0, GL2.GL_CONSTANT_ATTENUATION, 2f);
+//	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, .01f);
+//	        //gl.glLightf(gl.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, .5f);
+//	        
+	        gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[] {
+	        		(float) (Math.cos((w-model.cursor.x)/(20*Math.PI)))  , 
+	        		(float) (Math.sin((w-model.cursor.x)/(20*Math.PI))), 
+	        		(float) (20*(1-model.cursor.y/700) - 10f)}));
+	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 50.0f);
+	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 40.0f);
+		    
+		   
+		    
+		    
 
 		} else {
+			gl.glDisable( GL2.GL_LIGHTING ); 
 			//2D translate and scale
 			glu.gluOrtho2D(0.0f, Application.DEFAULT_SIZE.getWidth(), 0.0f, Application.DEFAULT_SIZE.getHeight());
 			//reset any skewed positioning to regular positioning
@@ -229,7 +283,7 @@ public final class View
 	
 	private void drawWalls(GL2 gl) {
 		if(model.viewWalls)
-			gl.glColor3f(0, 255, 0);
+			gl.glColor3f(0, 1, 0);
 		else
 			gl.glColor3f(0, 0, 0);
 		drawWall(gl, 50, 75, 20, 600);	// right wall
@@ -272,39 +326,106 @@ public final class View
 	private void drawWall(GL2 gl, double x, double y, double w, double l) {
 		gl.glBegin(GL2.GL_QUADS);
 		
+//		// bottom
+//		gl.glVertex3d(x, y, 0);
+//		gl.glVertex3d(x + w, y, 0);
+//		gl.glVertex3d(x + w, y + l, 0);
+//		gl.glVertex3d(x, y + l, 0);
+//		
+//		// top
+//
+//		gl.glVertex3d(x, y, wallHeight);
+//		gl.glVertex3d(x + w, y, wallHeight);
+//		gl.glVertex3d(x + w, y + l, wallHeight);
+//		gl.glVertex3d(x, y + l, wallHeight);
+//		
+//		// left
+//
+//		gl.glVertex3d(x, y, wallHeight);
+//		gl.glVertex3d(x, y + l, wallHeight);
+//		gl.glVertex3d(x, y + l, 0);
+//		gl.glVertex3d(x, y, 0);
+//		// right
+//
+//		gl.glVertex3d(x + w, y, wallHeight);
+//		gl.glVertex3d(x + w, y + l, wallHeight);
+//		gl.glVertex3d(x + w, y + l, 0);
+//		gl.glVertex3d(x + w, y, 0);
+//		
+//		// front
+//		gl.glVertex3d(x, y, wallHeight);
+//		gl.glVertex3d(x + w, y, wallHeight);
+//		gl.glVertex3d(x + w, y, 0);
+//		gl.glVertex3d(x, y, 0);
+//		// back
+//		gl.glVertex3d(x, y + l, wallHeight);
+//		gl.glVertex3d(x + w, y + l, wallHeight);
+//		gl.glVertex3d(x + w, y + l, 0);
+//		gl.glVertex3d(x, y + l, 0);
+		
+		
+		// create rectangular prism with the defined dimensions.
+		// make each face of the prism using many rectanges. this is so
+		//	vertex shading for the flashlight in the game will work effectively.
+		
 		// bottom
-		gl.glVertex3d(x, y, 0);
-		gl.glVertex3d(x + w, y, 0);
-		gl.glVertex3d(x + w, y + l, 0);
-		gl.glVertex3d(x, y + l, 0);
+		for(double i = x; i + w/20 <= x + w ; i += w/20) {
+			for(double j = y; j + l/20 <= y + l; j += l/20) {
+				gl.glVertex3d(i, j, 0);
+				gl.glVertex3d(i + w/20, j, 0);
+				gl.glVertex3d(i + w/20, j + l/20, 0);
+				gl.glVertex3d(i, j + l/20, 0);
+			}
+		}
 		
 		// top
-		gl.glVertex3d(x, y, wallHeight);
-		gl.glVertex3d(x + w, y, wallHeight);
-		gl.glVertex3d(x + w, y + l, wallHeight);
-		gl.glVertex3d(x, y + l, wallHeight);
-		
+		for(double i = x; i + w/20 <= x + w ; i += w/20) {
+			for(double j = y; j + l/20 <= y + l; j += l/20) {
+				gl.glVertex3d(i, j, wallHeight);
+				gl.glVertex3d(i + w/20, j, wallHeight);
+				gl.glVertex3d(i + w/20, j + l/20, wallHeight);
+				gl.glVertex3d(i, j + l/20, wallHeight);
+			}
+		}
 		// left
-		gl.glVertex3d(x, y, wallHeight);
-		gl.glVertex3d(x, y + l, wallHeight);
-		gl.glVertex3d(x, y + l, 0);
-		gl.glVertex3d(x, y, 0);
+		for(double i = y; i + l/20 <= y + l ; i += l/20) {
+			for(double j = 0; j + wallHeight/20 <= wallHeight; j += wallHeight/20) {
+				gl.glVertex3d(x, i, j);
+				gl.glVertex3d(x, i + l/20, j);
+				gl.glVertex3d(x, i + l/20, j + wallHeight/20);
+				gl.glVertex3d(x, i, j + wallHeight/20);
+			}
+		}
 		// right
-		gl.glVertex3d(x + w, y, wallHeight);
-		gl.glVertex3d(x + w, y + l, wallHeight);
-		gl.glVertex3d(x + w, y + l, 0);
-		gl.glVertex3d(x + w, y, 0);
-		
+		for(double i = y; i + l/20 <= y + l ; i += l/20) {
+			for(double j = 0; j + wallHeight/20 <= wallHeight; j += wallHeight/20) {
+				gl.glVertex3d(x + w, i, j);
+				gl.glVertex3d(x + w, i + l/20, j);
+				gl.glVertex3d(x + w, i + l/20, j + wallHeight/20);
+				gl.glVertex3d(x + w, i, j + wallHeight/20);
+			}
+		}
 		// front
-		gl.glVertex3d(x, y, wallHeight);
-		gl.glVertex3d(x + w, y, wallHeight);
-		gl.glVertex3d(x + w, y, 0);
-		gl.glVertex3d(x, y, 0);
+		for(double i = x; i + w/20 <= x + w ; i += w/20) {
+			for(double j = 0; j + wallHeight/20 <= wallHeight; j += wallHeight/20) {
+				gl.glVertex3d(i, y, j);
+				gl.glVertex3d(i + w/20, y, j);
+				gl.glVertex3d(i + w/20, y, j + wallHeight/20);
+				gl.glVertex3d(i, y, j + wallHeight/20);
+			}
+		}
 		// back
-		gl.glVertex3d(x, y + l, wallHeight);
-		gl.glVertex3d(x + w, y + l, wallHeight);
-		gl.glVertex3d(x + w, y + l, 0);
-		gl.glVertex3d(x, y + l, 0);
+		for(double i = x; i + w/20 <= x + w ; i += w/20) {
+			for(double j = 0; j + wallHeight/20 <= wallHeight; j += wallHeight/20) {
+				gl.glVertex3d(i, y + l, j);
+				gl.glVertex3d(i + w/20, y + l, j);
+				gl.glVertex3d(i + w/20, y + l, j + wallHeight/20);
+				gl.glVertex3d(i, y + l, j + wallHeight/20);
+			}
+		}
+		
+		
+		
 		gl.glEnd();
 		
 		model.addWall(x, y, w, l);
