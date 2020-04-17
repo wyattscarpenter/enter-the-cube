@@ -57,11 +57,13 @@ public final class Model
 	private Point2D.Double				origin;			// Current origin coords
 	public Point2D.Double				cursor = new Point2D.Double(350, 350);			// Current cursor coords
 	
-	public Point2D.Double				playerLocation;	// location of player
+	public Point3D				playerLocation = new Point3D();	// location of player
 	private int							playerRadius;		// size of player (radius)
 	private List<Double[]> 				walls;			// walls in maze
 	public boolean skewed;
-	public boolean viewWalls;
+	public boolean viewWalls = true;
+	private final int stepSize = 5;	//it's 5
+	public Point3D lookPoint = new Point3D(); //relative to player location
 
 	//**********************************************************************
 	// Constructors and Finalizer
@@ -73,7 +75,7 @@ public final class Model
 
 		// Initialize user-adjustable variables (with reasonable default values)
 		origin = new Point2D.Double(0.0, 0.0);
-		playerLocation = new Point2D.Double(350, 75);
+		playerLocation = new Point3D(350, 75, 10);
 		walls = new ArrayList<Double[]>();
 		playerRadius = 10;
 		
@@ -87,11 +89,6 @@ public final class Model
 	public Point2D.Double	getOrigin()
 	{
 		return new Point2D.Double(origin.x, origin.y);
-	}
-
-	public Point2D.Double 	getPlayerLocation()
-	{
-		return playerLocation;
 	}
 	
 	public int getPlayerRadius()
@@ -214,6 +211,83 @@ public final class Model
 		}
 
 		public abstract void	update(double[] p);
+	}
+
+	public void goLeft() {
+		if (skewed) {
+			//remember that the left perp of a vector <x,y> is <-y,x>
+			if(freeLocation(playerLocation.y-lookPoint.y, playerLocation.x+lookPoint.x)) {
+				movePlayer(-lookPoint.y, lookPoint.x);
+				playerReachGoal(playerLocation.x - stepSize, playerLocation.y);
+			}
+		} else {
+			if(freeLocation(playerLocation.x - playerRadius - stepSize, playerLocation.y - playerRadius) && 
+				freeLocation(playerLocation.x - playerRadius - stepSize, playerLocation.y + playerRadius)) {
+				movePlayer(-stepSize, 0);
+				playerReachGoal(playerLocation.x - stepSize, playerLocation.y);
+			}
+		}
+		
+	}
+	public void goRight() {
+		if (skewed) {
+			//remember that the right perp of a vector <x,y> is <y,-x>
+			if(freeLocation(playerLocation.y+lookPoint.y, playerLocation.x-lookPoint.x)) {
+				movePlayer(lookPoint.y, -lookPoint.x);
+				playerReachGoal(playerLocation.x - stepSize, playerLocation.y);
+			}
+		} else {
+			if(freeLocation(playerLocation.x  + playerRadius + stepSize, playerLocation.y - playerRadius) && 
+					freeLocation(playerLocation.x  + playerRadius + stepSize, playerLocation.y + playerRadius)) {		
+				movePlayer(stepSize, 0);
+				playerReachGoal(playerLocation.x  + stepSize, playerLocation.y);
+			}
+		}
+	}
+	public void goForward() {
+		if (skewed) {
+			if(freeLocation(playerLocation.x+lookPoint.x,playerLocation.y+lookPoint.y)) {
+				movePlayer(lookPoint.x, lookPoint.y);
+				playerReachGoal(playerLocation.x - stepSize, playerLocation.y);
+			}
+		} else {
+			if(freeLocation(playerLocation.x - playerRadius, playerLocation.y + playerRadius + stepSize) && 
+					freeLocation(playerLocation.x + playerRadius, playerLocation.y + playerRadius + stepSize)) {					
+				movePlayer(0, stepSize);
+				playerReachGoal(playerLocation.x, playerLocation.y + stepSize);
+			}
+		}
+	}
+	public void goBack() {
+		if (skewed) {
+			if(freeLocation(playerLocation.x+-lookPoint.x,playerLocation.y+-lookPoint.y)) {
+				movePlayer(-lookPoint.x, -lookPoint.y);
+				playerReachGoal(playerLocation.x - stepSize, playerLocation.y);
+			}
+		} else {
+			if(freeLocation(playerLocation.x - playerRadius, playerLocation.y - playerRadius - stepSize) && 
+					freeLocation(playerLocation.x + playerRadius, playerLocation.y - playerRadius - stepSize)) {					
+				movePlayer(0, -stepSize);
+				playerReachGoal(playerLocation.x, playerLocation.y - stepSize);
+			}
+		}
+	}
+	public void jump() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public void playerReachGoal(double x, double y) {
+		if(x >= 345 && x <= 355 && y >= 370 && y <= 380) {
+			setPlayer(350, 75);
+			viewWalls = !viewWalls;
+		}
+	}
+
+	public void mouselook(Point point) {
+		lookPoint.x = Math.cos((view.getWidth()-point.x)/(20*Math.PI));
+		lookPoint.y = Math.sin((view.getWidth()-point.x)/(20*Math.PI));
+		lookPoint.z = 5.0-point.y/60.0;
 	}
 }
 

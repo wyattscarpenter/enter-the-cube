@@ -213,6 +213,7 @@ public final class View
 			
 			//set up the camera and position to accommodate 3D
 			glu.gluPerspective(60, 1, 1, 10000);
+			/*
 			//this in part deals with some funkiness regarding how we set up coordinates
 			//when we switch to actual 3D coordinates we'll have to figure this out again
 			//remember that our mouse coordinates are both 0-700 in Cartesian I right now.
@@ -223,6 +224,13 @@ public final class View
 			glu.gluLookAt(model.playerLocation.x, model.playerLocation.y, 10, //hover right above the red square
 					lookleftright, lookforwardbackward, 20*(1-model.cursor.y/700), //look at an imaginary point that's in a good place
 					0, 0, 1); //up is up
+			 */
+			glu.gluLookAt(
+					 //hover right above the red square
+					model.playerLocation.x, model.playerLocation.y, model.playerLocation.z,
+					 //look at an imaginary point that's in a good place
+					model.playerLocation.x + model.lookPoint.x, model.playerLocation.y + model.lookPoint.y, model.playerLocation.z + model.lookPoint.z,
+					0, 0, 1); //up is up
 			
 			
 			
@@ -230,7 +238,7 @@ public final class View
 		
 			w = 700;
 		    
-		    float[] pos = {(float) model.playerLocation.x,(float) model.playerLocation.y,10f, 1f};
+		    
 			
 		    gl.glEnable( gl.GL_LIGHTING ); 
 		    gl.glEnable( gl.GL_LIGHT0 );
@@ -249,24 +257,28 @@ public final class View
 		    gl.glLightfv(gl.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
 		    gl.glLightfv(gl.GL_LIGHT0, GL2.GL_SPECULAR, specular, 0);
 	        
-	        gl.glLightfv(gl.GL_LIGHT0, GL2.GL_POSITION, pos, 0);
+	        gl.glLightfv(gl.GL_LIGHT0, GL2.GL_POSITION, new float[]{
+	        		(float) model.playerLocation.x, 
+	        		(float) model.playerLocation.y, 
+	        		(float) model.playerLocation.z,
+	        		1f}, 
+	        	0);
 	        
 	        
-	        //gl.glLightf(gl.GL_LIGHT0, GL2.GL_CONSTANT_ATTENUATION, 2f);
+	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_CONSTANT_ATTENUATION, .3f);
 //	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, .01f);
 //	        //gl.glLightf(gl.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, .5f);
 //	        
-	        gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[] {
-	        		(float) (Math.cos((w-model.cursor.x)/(20*Math.PI)))  , 
-	        		(float) (Math.sin((w-model.cursor.x)/(20*Math.PI))), 
-	        		(float) (20*(1-model.cursor.y/700) - 10f)}));
+	        gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{
+	        		(float) model.lookPoint.x, 
+	        		(float) model.lookPoint.y, 
+	        		(float) model.lookPoint.z}));
 	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 50.0f);
 	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 40.0f);
 		    
 		   
 		    
-		    
-
+		   
 		} else {
 			gl.glDisable( GL2.GL_LIGHTING ); 
 			//2D translate and scale
@@ -433,7 +445,7 @@ public final class View
 	
 	
 	private void drawPlayer(GL2 gl) {
-		Point2D.Double p = model.getPlayerLocation();
+		Point2D.Double p = new Point2D.Double(model.playerLocation.x,model.playerLocation.y);
 		
 		int r = model.getPlayerRadius();
 		
