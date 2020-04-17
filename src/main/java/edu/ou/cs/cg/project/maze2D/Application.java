@@ -1,72 +1,24 @@
-//******************************************************************************
-// Copyright (C) 2016-2019 University of Oklahoma Board of Trustees.
-//******************************************************************************
-// Last modified: Mon Mar 18 23:57:01 2019 by Chris Weaver
-//******************************************************************************
-// Major Modification History:
-//
-// 20160225 [weaver]:	Original file.
-// 20190203 [weaver]:	Updated to JOGL 2.3.2 and cleaned up.
-//
-//******************************************************************************
-// Notes:
-//
-//******************************************************************************
-
 package edu.ou.cs.cg.project.maze2D;
 
-//import java.lang.*;
 import java.awt.Dimension;
 import java.awt.event.*;
 import javax.swing.*;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.*;
 
-//******************************************************************************
-
-/**
- * The <CODE>Application</CODE> class.<P>
- *
- * @author  Chris Weaver
- * @version %I%, %G%
- */
 public final class Application
 	implements Runnable
 {
-	//**********************************************************************
-	// Public Class Members
-	//**********************************************************************
 
 	public static final String		DEFAULT_NAME = "Maze2D";
 	public static final Dimension	DEFAULT_SIZE = new Dimension(700, 700);
-
-	//**********************************************************************
-	// Main
-	//**********************************************************************
 
 	public static void	main(String[] args)
 	{
 		SwingUtilities.invokeLater(new Application(args));
 	}
 
-	//**********************************************************************
-	// Private Members
-	//**********************************************************************
-
-	// State (internal) variables
-	private View		view;
-
-	//**********************************************************************
-	// Constructors and Finalizer
-	//**********************************************************************
-
-	public Application(String[] args)
-	{
-	}
-
-	//**********************************************************************
-	// Override Methods (Runnable)
-	//**********************************************************************
+	public Application(String[] args) {}
 
 	public void	run()
 	{
@@ -95,10 +47,7 @@ public final class Application
 					System.exit(0);
 				}
 			});
-
-		// Create a view to manage the canvas
-		view = new View(canvas);
+		//make a view to control our canvas or something
+		new View(canvas);
 	}
 }
-
-//******************************************************************************
