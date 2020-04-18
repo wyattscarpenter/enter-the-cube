@@ -68,7 +68,7 @@ public final class View
 	private final KeyHandler			keyHandler;
 	public final MouseHandler			mouseHandler;
 	
-	private double wallHeight = 20;
+	private double wallHeight = 50;
 
 	//**********************************************************************
 	// Constructors and Finalizer
@@ -165,6 +165,7 @@ public final class View
 		
 		setProjection(gl);
 		drawWalls(gl);
+		//drawFloors(gl);
 		drawGoal(gl, 350, 375);
 		drawPlayer(gl);
 		//drawAxes(gl); //ruins program
@@ -207,7 +208,59 @@ public final class View
 
 		    
 		    
+			w = 700;
 		    
+		    
+			
+		    gl.glEnable( gl.GL_LIGHTING ); 
+		    gl.glEnable( gl.GL_LIGHT0 );
+		    gl.glEnable( gl.GL_DEPTH_TEST ); 
+		    
+		    
+		    //gl.glEnable(gl.GL_NORMALIZE);
+		    //gl.glLightModelf(gl.GL_LIGHT_MODEL_TWO_SIDE, gl.GL_TRUE);
+		    
+		    //gl.glShadeModel(gl.GL_FLAT);
+		    
+		    
+
+		    gl.glColorMaterial(gl.GL_FRONT, gl.GL_AMBIENT_AND_DIFFUSE);
+		    gl.glEnable(gl.GL_COLOR_MATERIAL);
+		    
+		    
+//		    float[] SPECULAR = {1f, 1f, 1f, 1f};
+//		    gl.glMaterialfv(gl.GL_FRONT, gl.GL_SPECULAR, FloatBuffer.wrap(SPECULAR));
+		    //gl.glMaterialfv(gl.GL_FRONT_AND_BACK, gl.GL_EMISSION, FloatBuffer.wrap(new float[] {0f,0f,0f,1f}));
+
+		    //gl.glMaterialfv(gl.GL_FRONT, gl.GL_AMBIENT_AND_DIFFUSE, FloatBuffer.wrap(new float[] {0f,1f,0f,1f}));
+		    
+		    
+		    
+		    
+		    float[] ambient = {.4f, .4f, .4f, .4f};
+		    float[] diffuse = {.4f, .4f, .4f, 1f};
+		    float[] specular = {0f, 1f, 1f, 1f};
+		    
+		    gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT, ambient, 0);
+		    gl.glLightfv(gl.GL_LIGHT0, gl.GL_DIFFUSE, diffuse, 0);
+		    gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPECULAR, specular, 0);
+	        
+	        gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION, FloatBuffer.wrap(new float[]{
+	        		(float) model.playerLocation.x, 
+	        		(float) model.playerLocation.y, 
+	        		(float) model.playerLocation.z,
+	        		1f}));
+	        
+	        gl.glLightf(gl.GL_LIGHT0, gl.GL_CONSTANT_ATTENUATION, .3f);
+//	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, .01f);
+//	        //gl.glLightf(gl.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, .5f);
+//	        
+	        gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{
+	        		(float) model.lookPoint.x, 
+	        		(float) model.lookPoint.y, 
+	        		(float) model.lookPoint.z}));
+	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 50.0f);
+	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 40.0f);
 		    
 			
 			
@@ -231,52 +284,6 @@ public final class View
 					 //look at an imaginary point that's in a good place
 					model.playerLocation.x + model.lookPoint.x, model.playerLocation.y + model.lookPoint.y, model.playerLocation.z + model.lookPoint.z,
 					0, 0, 1); //up is up
-			
-			
-			
-
-		
-			w = 700;
-		    
-		    
-			
-		    gl.glEnable( gl.GL_LIGHTING ); 
-		    gl.glEnable( gl.GL_LIGHT0 );
-		    gl.glEnable( gl.GL_DEPTH_TEST ); 
-		    
-		    //gl.glShadeModel(gl.GL_FLAT);
-
-
-		    
-		    
-		    float[] ambient = {0f, 0f, 1f, 1f};
-		    float[] diffuse = {0f, 0f, 1f, 1f};
-		    float[] specular = {1f, 1f, 1f, 1f};
-		    
-		    gl.glLightfv(gl.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
-		    gl.glLightfv(gl.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
-		    gl.glLightfv(gl.GL_LIGHT0, GL2.GL_SPECULAR, specular, 0);
-	        
-	        gl.glLightfv(gl.GL_LIGHT0, GL2.GL_POSITION, new float[]{
-	        		(float) model.playerLocation.x, 
-	        		(float) model.playerLocation.y, 
-	        		(float) model.playerLocation.z,
-	        		1f}, 
-	        	0);
-	        
-	        
-	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_CONSTANT_ATTENUATION, .3f);
-//	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, .01f);
-//	        //gl.glLightf(gl.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, .5f);
-//	        
-	        gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{
-	        		(float) model.lookPoint.x, 
-	        		(float) model.lookPoint.y, 
-	        		(float) model.lookPoint.z}));
-	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 50.0f);
-	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 40.0f);
-		    
-		   
 		    
 		   
 		} else {
@@ -292,12 +299,38 @@ public final class View
 	//**********************************************************************
 	// Private Methods (Scene)
 	//**********************************************************************
+	private void drawFloors(GL2 gl) {
+		if(model.viewWalls)
+			gl.glColor3f(.4f, 0, .4f);
+		else
+			gl.glColor3f(0, 0, 0);
+		
+		drawFloor(gl, 50, 75, 600, 600);
+		drawFloor(gl, 310, 35, 80, 40);
+	}
+	
+	private void drawFloor(GL2 gl, double x, double y, double w, double l) {
+		
+		
+		gl.glBegin(GL2.GL_QUADS);
+		for(double i = x; i + 1 <= x + w; i++) {
+			for(double j = y; j + 1 <= y + l; j++) {
+				gl.glVertex2d(i, j);
+				gl.glVertex2d(i + 1, j);
+				gl.glVertex2d(i + 1, j + l);
+				gl.glVertex2d(i, j + l);
+			}
+		}
+		gl.glEnd();
+	}
+	
 	
 	private void drawWalls(GL2 gl) {
 		if(model.viewWalls)
 			gl.glColor3f(0, 1, 0);
 		else
 			gl.glColor3f(0, 0, 0);
+		
 		drawWall(gl, 50, 75, 20, 600);	// right wall
 		drawWall(gl, 70, 655, 560, 20);	// upper wall
 		drawWall(gl, 630, 75, 20, 600); // left wall 
@@ -336,103 +369,70 @@ public final class View
 
 
 	private void drawWall(GL2 gl, double x, double y, double w, double l) {
-		gl.glBegin(GL2.GL_QUADS);
-		
-//		// bottom
-//		gl.glVertex3d(x, y, 0);
-//		gl.glVertex3d(x + w, y, 0);
-//		gl.glVertex3d(x + w, y + l, 0);
-//		gl.glVertex3d(x, y + l, 0);
-//		
-//		// top
-//
-//		gl.glVertex3d(x, y, wallHeight);
-//		gl.glVertex3d(x + w, y, wallHeight);
-//		gl.glVertex3d(x + w, y + l, wallHeight);
-//		gl.glVertex3d(x, y + l, wallHeight);
-//		
-//		// left
-//
-//		gl.glVertex3d(x, y, wallHeight);
-//		gl.glVertex3d(x, y + l, wallHeight);
-//		gl.glVertex3d(x, y + l, 0);
-//		gl.glVertex3d(x, y, 0);
-//		// right
-//
-//		gl.glVertex3d(x + w, y, wallHeight);
-//		gl.glVertex3d(x + w, y + l, wallHeight);
-//		gl.glVertex3d(x + w, y + l, 0);
-//		gl.glVertex3d(x + w, y, 0);
-//		
-//		// front
-//		gl.glVertex3d(x, y, wallHeight);
-//		gl.glVertex3d(x + w, y, wallHeight);
-//		gl.glVertex3d(x + w, y, 0);
-//		gl.glVertex3d(x, y, 0);
-//		// back
-//		gl.glVertex3d(x, y + l, wallHeight);
-//		gl.glVertex3d(x + w, y + l, wallHeight);
-//		gl.glVertex3d(x + w, y + l, 0);
-//		gl.glVertex3d(x, y + l, 0);
-		
+		gl.glBegin(GL2.GL_QUADS);		
 		
 		// create rectangular prism with the defined dimensions.
 		// make each face of the prism using many rectanges. this is so
 		//	vertex shading for the flashlight in the game will work effectively.
+		double wSplit = w / Math.floor(w / 2);
+		double lSplit = l / Math.floor(l / 2);
+		double hSplit = wallHeight / Math.floor(wallHeight / 2);
 		
 		// bottom
-		for(double i = x; i + w/20 <= x + w ; i += w/20) {
-			for(double j = y; j + l/20 <= y + l; j += l/20) {
+		for(double i = x; i + wSplit <= x + w ; i += wSplit) {
+			for(double j = y; j + lSplit <= y + l; j += lSplit) {
 				gl.glVertex3d(i, j, 0);
-				gl.glVertex3d(i + w/20, j, 0);
-				gl.glVertex3d(i + w/20, j + l/20, 0);
-				gl.glVertex3d(i, j + l/20, 0);
+				gl.glVertex3d(i + wSplit, j, 0);
+				gl.glVertex3d(i + wSplit, j + lSplit, 0);
+				gl.glVertex3d(i, j + lSplit, 0);
 			}
 		}
 		
 		// top
-		for(double i = x; i + w/20 <= x + w ; i += w/20) {
-			for(double j = y; j + l/20 <= y + l; j += l/20) {
+		for(double i = x; i + wSplit <= x + w ; i += wSplit) {
+			for(double j = y; j + lSplit <= y + l; j += lSplit) {
 				gl.glVertex3d(i, j, wallHeight);
-				gl.glVertex3d(i + w/20, j, wallHeight);
-				gl.glVertex3d(i + w/20, j + l/20, wallHeight);
-				gl.glVertex3d(i, j + l/20, wallHeight);
+				gl.glVertex3d(i + wSplit, j, wallHeight);
+				gl.glVertex3d(i + wSplit, j + lSplit, wallHeight);
+				gl.glVertex3d(i, j + lSplit, wallHeight);
 			}
 		}
+		
+		
 		// left
-		for(double i = y; i + l/20 <= y + l ; i += l/20) {
-			for(double j = 0; j + wallHeight/20 <= wallHeight; j += wallHeight/20) {
+		for(double i = y; i + lSplit <= y + l ; i += lSplit) {
+			for(double j = 0; j + hSplit <= wallHeight; j += hSplit) {
 				gl.glVertex3d(x, i, j);
-				gl.glVertex3d(x, i + l/20, j);
-				gl.glVertex3d(x, i + l/20, j + wallHeight/20);
-				gl.glVertex3d(x, i, j + wallHeight/20);
+				gl.glVertex3d(x, i + lSplit, j);
+				gl.glVertex3d(x, i + lSplit, j + hSplit);
+				gl.glVertex3d(x, i, j + hSplit);
 			}
 		}
 		// right
-		for(double i = y; i + l/20 <= y + l ; i += l/20) {
-			for(double j = 0; j + wallHeight/20 <= wallHeight; j += wallHeight/20) {
+		for(double i = y; i + lSplit <= y + l ; i += lSplit) {
+			for(double j = 0; j + hSplit <= wallHeight; j += hSplit) {
 				gl.glVertex3d(x + w, i, j);
-				gl.glVertex3d(x + w, i + l/20, j);
-				gl.glVertex3d(x + w, i + l/20, j + wallHeight/20);
-				gl.glVertex3d(x + w, i, j + wallHeight/20);
+				gl.glVertex3d(x + w, i + lSplit, j);
+				gl.glVertex3d(x + w, i + lSplit, j + hSplit);
+				gl.glVertex3d(x + w, i, j + hSplit);
 			}
 		}
 		// front
-		for(double i = x; i + w/20 <= x + w ; i += w/20) {
-			for(double j = 0; j + wallHeight/20 <= wallHeight; j += wallHeight/20) {
+		for(double i = x; i + wSplit <= x + w ; i += wSplit) {
+			for(double j = 0; j + hSplit <= wallHeight; j += hSplit) {
 				gl.glVertex3d(i, y, j);
-				gl.glVertex3d(i + w/20, y, j);
-				gl.glVertex3d(i + w/20, y, j + wallHeight/20);
-				gl.glVertex3d(i, y, j + wallHeight/20);
+				gl.glVertex3d(i + wSplit, y, j);
+				gl.glVertex3d(i + wSplit, y, j + hSplit);
+				gl.glVertex3d(i, y, j + hSplit);
 			}
 		}
 		// back
-		for(double i = x; i + w/20 <= x + w ; i += w/20) {
-			for(double j = 0; j + wallHeight/20 <= wallHeight; j += wallHeight/20) {
+		for(double i = x; i + wSplit <= x + w ; i += wSplit) {
+			for(double j = 0; j + hSplit <= wallHeight; j += hSplit) {
 				gl.glVertex3d(i, y + l, j);
-				gl.glVertex3d(i + w/20, y + l, j);
-				gl.glVertex3d(i + w/20, y + l, j + wallHeight/20);
-				gl.glVertex3d(i, y + l, j + wallHeight/20);
+				gl.glVertex3d(i + wSplit, y + l, j);
+				gl.glVertex3d(i + wSplit, y + l, j + hSplit);
+				gl.glVertex3d(i, y + l, j + hSplit);
 			}
 		}
 		
@@ -449,7 +449,7 @@ public final class View
 		
 		int r = model.getPlayerRadius();
 		
-		gl.glColor3f(255, 0, 0);
+		gl.glColor3f(1, 0, 0);
 		gl.glBegin(GL2.GL_POLYGON);
 		gl.glVertex2d(p.x - r, p.y - r);
 		gl.glVertex2d(p.x - r, p.y + r);
@@ -465,7 +465,7 @@ public final class View
 		double	theta = 0.5 * Math.PI;
 		double	delta = Math.PI / 5;
 
-		gl.glColor3f(255, 255, 0);
+		gl.glColor3f(1, 1, 0);
 		gl.glBegin(GL.GL_TRIANGLE_FAN);
 		gl.glVertex2d(cx, cy); // center point
 		
