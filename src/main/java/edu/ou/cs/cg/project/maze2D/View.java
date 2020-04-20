@@ -165,9 +165,14 @@ public final class View
 		
 		setProjection(gl);
 		drawWalls(gl);
-		//drawFloors(gl);
 		drawGoal(gl, 350, 375);
-		drawPlayer(gl);
+		
+		// only draw floor in 3d. only draw player location in 2d.
+		if(model.skewed)
+			drawFloors(gl);
+		else
+			drawPlayer(gl);
+		
 		//drawAxes(gl); //ruins program
 
 		// Draw the scene
@@ -211,57 +216,45 @@ public final class View
 			w = 700;
 		    
 		    
-			
+			// enable lighting 
 		    gl.glEnable( gl.GL_LIGHTING ); 
 		    gl.glEnable( gl.GL_LIGHT0 );
 		    gl.glEnable( gl.GL_DEPTH_TEST ); 
-		    
-		    
-		    //gl.glEnable(gl.GL_NORMALIZE);
-		    //gl.glLightModelf(gl.GL_LIGHT_MODEL_TWO_SIDE, gl.GL_TRUE);
-		    
 		    //gl.glShadeModel(gl.GL_FLAT);
 		    
 		    
-
+		    // get the object colors from glColor.
 		    gl.glColorMaterial(gl.GL_FRONT, gl.GL_AMBIENT_AND_DIFFUSE);
 		    gl.glEnable(gl.GL_COLOR_MATERIAL);
 		    
 		    
-//		    float[] SPECULAR = {1f, 1f, 1f, 1f};
-//		    gl.glMaterialfv(gl.GL_FRONT, gl.GL_SPECULAR, FloatBuffer.wrap(SPECULAR));
-		    //gl.glMaterialfv(gl.GL_FRONT_AND_BACK, gl.GL_EMISSION, FloatBuffer.wrap(new float[] {0f,0f,0f,1f}));
-
-		    //gl.glMaterialfv(gl.GL_FRONT, gl.GL_AMBIENT_AND_DIFFUSE, FloatBuffer.wrap(new float[] {0f,1f,0f,1f}));
-		    
-		    
-		    
-		    
-		    float[] ambient = {.4f, .4f, .4f, .4f};
-		    float[] diffuse = {.4f, .4f, .4f, 1f};
+		    // set the color for the flashlight
+		    float[] ambient = {.2f, .2f, .2f, .4f};
+		    float[] diffuse = {.2f, .2f, .2f, 1f};
 		    float[] specular = {0f, 1f, 1f, 1f};
 		    
 		    gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT, ambient, 0);
 		    gl.glLightfv(gl.GL_LIGHT0, gl.GL_DIFFUSE, diffuse, 0);
 		    gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPECULAR, specular, 0);
 	        
+		    // set the position of the flashlight to be at the player's eye
 	        gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION, FloatBuffer.wrap(new float[]{
 	        		(float) model.playerLocation.x, 
 	        		(float) model.playerLocation.y, 
 	        		(float) model.playerLocation.z,
 	        		1f}));
-	        
-	        gl.glLightf(gl.GL_LIGHT0, gl.GL_CONSTANT_ATTENUATION, .3f);
-//	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, .01f);
-//	        //gl.glLightf(gl.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, .5f);
-//	        
+	        // set the direction of the flashlight to be the direction the player is facing
 	        gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{
 	        		(float) model.lookPoint.x, 
 	        		(float) model.lookPoint.y, 
 	        		(float) model.lookPoint.z}));
+	        // set attributes of the flashlight
 	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 50.0f);
-	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 40.0f);
-		    
+	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 30.0f);		
+	        gl.glLightf(gl.GL_LIGHT0, gl.GL_CONSTANT_ATTENUATION, .3f);	
+//	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, .01f);
+//	        //gl.glLightf(gl.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, .5f);
+//	        
 			
 			
 			//set up the camera and position to accommodate 3D
@@ -300,10 +293,7 @@ public final class View
 	// Private Methods (Scene)
 	//**********************************************************************
 	private void drawFloors(GL2 gl) {
-		if(model.viewWalls)
-			gl.glColor3f(.4f, 0, .4f);
-		else
-			gl.glColor3f(0, 0, 0);
+		gl.glColor3f(.3f, .3f, .3f);
 		
 		drawFloor(gl, 50, 75, 600, 600);
 		drawFloor(gl, 310, 35, 80, 40);
@@ -311,14 +301,15 @@ public final class View
 	
 	private void drawFloor(GL2 gl, double x, double y, double w, double l) {
 		
-		
+		// draw floor using many equaly sized squares. 
+		// done to get visual apperance of flashlight while doing vertex shading. 
 		gl.glBegin(GL2.GL_QUADS);
-		for(double i = x; i + 1 <= x + w; i++) {
-			for(double j = y; j + 1 <= y + l; j++) {
+		for(double i = x; i + 2 <= x + w; i += 2) {
+			for(double j = y; j + 2 <= y + l; j += 2) {
 				gl.glVertex2d(i, j);
-				gl.glVertex2d(i + 1, j);
-				gl.glVertex2d(i + 1, j + l);
-				gl.glVertex2d(i, j + l);
+				gl.glVertex2d(i + 2, j);
+				gl.glVertex2d(i + 2, j + 2);
+				gl.glVertex2d(i, j + 2);
 			}
 		}
 		gl.glEnd();
@@ -326,6 +317,7 @@ public final class View
 	
 	
 	private void drawWalls(GL2 gl) {
+		// draw regular walls
 		if(model.viewWalls)
 			gl.glColor3f(0, 1, 0);
 		else
@@ -365,8 +357,21 @@ public final class View
 		drawWall(gl, 122.5, 365, 72.5, 20);
 		drawWall(gl, 122.5, 147.5, 72.5, 20);
 		drawWall(gl, 122.5, 167.5, 20, 145);
-	}
+		
+		// draw special walls
+		if(model.viewWalls)
+			// set the color to the wall so that when combined with emission it will be white.
+			// this is so that the wall appears white when a flashlight is shined on it. 
+			gl.glColor3f(.5f, .25f, 0f);
+		else
+			gl.glColor3f(0, 0, 0);
+		// set the emission color of the walls to light blue to make it seem as though the walls are glowing. 
+		gl.glMaterialfv(gl.GL_FRONT, gl.GL_EMISSION, FloatBuffer.wrap(new float[] {.5f,.75f,1f,1f}));
+		drawWall(gl, 350, 100, 10, 10);
+		gl.glMaterialfv(gl.GL_FRONT, gl.GL_EMISSION, FloatBuffer.wrap(new float[] {0f,0f,0f,1f}));
 
+		
+	}
 
 	private void drawWall(GL2 gl, double x, double y, double w, double l) {
 		gl.glBegin(GL2.GL_QUADS);		
