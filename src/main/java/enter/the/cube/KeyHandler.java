@@ -1,4 +1,4 @@
-package edu.ou.cs.cg.project.maze2D;
+package enter.the.cube;
 
 import java.awt.Component;
 import java.awt.event.KeyAdapter;

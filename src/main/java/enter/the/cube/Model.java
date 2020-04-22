@@ -1,4 +1,4 @@
-package edu.ou.cs.cg.project.maze2D;
+package enter.the.cube;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
@@ -8,8 +8,6 @@ import java.util.List;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLRunnable;
-
-import edu.ou.cs.cg.utilities.Utilities;
 
 public final class Model {
 	// State (internal) variables

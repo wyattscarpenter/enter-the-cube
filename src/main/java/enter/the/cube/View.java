@@ -1,4 +1,4 @@
-package edu.ou.cs.cg.project.maze2D;
+package enter.the.cube;
 
 import java.awt.Font;
 import java.awt.geom.Point2D;
@@ -13,8 +13,6 @@ import com.jogamp.opengl.fixedfunc.GLLightingFunc;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.awt.TextRenderer;
-
-import edu.ou.cs.cg.utilities.Utilities;
 
 public final class View implements GLEventListener {
 	private static final int DEFAULT_FRAMES_PER_SECOND = 60;

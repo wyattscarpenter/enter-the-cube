@@ -13,7 +13,7 @@
 //
 //******************************************************************************
 
-package edu.ou.cs.cg.utilities;
+package enter.the.cube;
 
 //import java.lang.*;
 import java.awt.event.*;

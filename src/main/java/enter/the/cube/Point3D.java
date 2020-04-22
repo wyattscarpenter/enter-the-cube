@@ -1,4 +1,4 @@
-package edu.ou.cs.cg.project.maze2D;
+package enter.the.cube;
 
 public class Point3D {
 	public double x;
