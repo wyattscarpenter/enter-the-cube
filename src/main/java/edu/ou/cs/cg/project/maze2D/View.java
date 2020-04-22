@@ -2,11 +2,15 @@ package edu.ou.cs.cg.project.maze2D;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.nio.FloatBuffer;
+import java.text.DecimalFormat;
+import java.util.List;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.glu.*;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.awt.TextRenderer;
+
 import edu.ou.cs.cg.utilities.Utilities;
 
 public final class View implements GLEventListener {
@@ -21,9 +25,10 @@ public final class View implements GLEventListener {
 	private final FPSAnimator animator;
 	private final Model model;
 
-	public final MouseHandler mouseHandler;
-
-	private double wallHeight = 20;
+	private final KeyHandler			keyHandler;
+	public final MouseHandler			mouseHandler;
+	
+	private double wallHeight = 50;
 
 	public View(GLJPanel canvas) {
 		this.canvas = canvas;
@@ -86,16 +91,24 @@ public final class View implements GLEventListener {
 	private void update(GLAutoDrawable drawable) {
 	}
 
-	private void render(GLAutoDrawable drawable) {
-		GL2 gl = drawable.getGL().getGL2();
-		if (model.viewWalls)
-			gl.glClear(GL.GL_COLOR_BUFFER_BIT); // Clear the buffer
-
+	private void render(GLAutoDrawable drawable)
+	{
+		GL2	gl = drawable.getGL().getGL2();
+		if(model.viewWalls)
+	      gl.glClear( GL2.GL_COLOR_BUFFER_BIT |  
+	    	      GL2.GL_DEPTH_BUFFER_BIT );
+		
 		setProjection(gl);
 		drawWalls(gl);
 		drawGoal(gl, 350, 375);
-		drawPlayer(gl);
-		// drawAxes(gl); //ruins program
+		
+		// only draw floor in 3d. only draw player location in 2d.
+		if(model.skewed)
+			drawFloors(gl);
+		else
+			drawPlayer(gl);
+		
+		//drawAxes(gl); //ruins program
 
 		// Draw the scene
 		drawMode(drawable); // Draw mode text
@@ -127,30 +140,75 @@ public final class View implements GLEventListener {
 		gl.glMatrixMode(GL2.GL_PROJECTION); // Prepare for matrix xform
 		gl.glLoadIdentity(); // Set to identity matrix
 		if (model.skewed) {
-			// set up the camera and position to accommodate 3D
+			w = 700;
+		    
+		    
+			// enable lighting 
+		    gl.glEnable( gl.GL_LIGHTING ); 
+		    gl.glEnable( gl.GL_LIGHT0 );
+		    gl.glEnable( gl.GL_DEPTH_TEST ); 
+		    //gl.glShadeModel(gl.GL_FLAT);
+		    
+		    
+		    // get the object colors from glColor.
+		    gl.glColorMaterial(gl.GL_FRONT, gl.GL_AMBIENT_AND_DIFFUSE);
+		    gl.glEnable(gl.GL_COLOR_MATERIAL);
+		    
+		    
+		    // set the color for the flashlight
+		    float[] ambient = {.2f, .2f, .2f, .4f};
+		    float[] diffuse = {.2f, .2f, .2f, 1f};
+		    float[] specular = {0f, 1f, 1f, 1f};
+		    
+		    gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT, ambient, 0);
+		    gl.glLightfv(gl.GL_LIGHT0, gl.GL_DIFFUSE, diffuse, 0);
+		    gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPECULAR, specular, 0);
+	        
+		    // set the position of the flashlight to be at the player's eye
+	        gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION, FloatBuffer.wrap(new float[]{
+	        		(float) model.playerLocation.x, 
+	        		(float) model.playerLocation.y, 
+	        		(float) model.playerLocation.z,
+	        		1f}));
+	        // set the direction of the flashlight to be the direction the player is facing
+	        gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{
+	        		(float) model.lookPoint.x, 
+	        		(float) model.lookPoint.y, 
+	        		(float) model.lookPoint.z}));
+	        // set attributes of the flashlight
+	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 50.0f);
+	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 30.0f);		
+	        gl.glLightf(gl.GL_LIGHT0, gl.GL_CONSTANT_ATTENUATION, .3f);	
+//	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, .01f);
+//	        //gl.glLightf(gl.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, .5f);
+//	        
+			
+			
+			//set up the camera and position to accommodate 3D
 			glu.gluPerspective(60, 1, 1, 10000);
 			/*
-			 * //this in part deals with some funkiness regarding how we set up coordinates
-			 * //when we switch to actual 3D coordinates we'll have to figure this out again
-			 * //remember that our mouse coordinates are both 0-700 in Cartesian I right
-			 * now. //our x and y are with respect to the maze plane and our z is up out of
-			 * the plane //so we have to do some trig to find a nice point to look at i
-			 * guess double lookleftright = model.playerLocation.x +
-			 * Math.cos((w-model.cursor.x)/(20*Math.PI)); double lookforwardbackward =
-			 * model.playerLocation.y + Math.sin((w-model.cursor.x)/(20*Math.PI));
-			 * glu.gluLookAt(model.playerLocation.x, model.playerLocation.y, 10, //hover
-			 * right above the red square lookleftright, lookforwardbackward,
-			 * 5+10-model.cursor.y/60, //look at an imaginary point that's in a good place
-			 * 0, 0, 1); //up is up
+			//this in part deals with some funkiness regarding how we set up coordinates
+			//when we switch to actual 3D coordinates we'll have to figure this out again
+			//remember that our mouse coordinates are both 0-700 in Cartesian I right now.
+			//our x and y are with respect to the maze plane and our z is up out of the plane
+			//so we have to do some trig to find a nice point to look at i guess
+			double lookleftright = model.playerLocation.x + Math.cos((w-model.cursor.x)/(20*Math.PI));
+			double lookforwardbackward = model.playerLocation.y + Math.sin((w-model.cursor.x)/(20*Math.PI));
+			glu.gluLookAt(model.playerLocation.x, model.playerLocation.y, 10, //hover right above the red square
+					lookleftright, lookforwardbackward, 20*(1-model.cursor.y/700), //look at an imaginary point that's in a good place
+					0, 0, 1); //up is up
 			 */
 			glu.gluLookAt(
 					// hover right above the red square
 					model.playerLocation.x, model.playerLocation.y, model.playerLocation.z,
-					// look at an imaginary point that's in a good place
-					model.playerLocation.x + model.lookPoint.x, model.playerLocation.y + model.lookPoint.y,
-					model.playerLocation.z + model.lookPoint.z, 0, 0, 1); // up is up
+					//look at an imaginary point that's in a good place
+					model.playerLocation.x + model.lookPoint.x, model.playerLocation.y + model.lookPoint.y, model.playerLocation.z + model.lookPoint.z,
+					0, 0, 1); //up is up
+		    
+		   
 		} else {
-			// 2D translate and scale
+			gl.glDisable( GL2.GL_LIGHTING ); 
+			//2D translate and scale
 			glu.gluOrtho2D(0.0f, Application.DEFAULT_SIZE.getWidth(), 0.0f, Application.DEFAULT_SIZE.getHeight());
 			// reset any skewed positioning to regular positioning
 			gl.glMatrixMode(GL2.GL_MODELVIEW);
@@ -160,18 +218,43 @@ public final class View implements GLEventListener {
 
 	// **********************************************************************
 	// Private Methods (Scene)
-	// **********************************************************************
-
+	//**********************************************************************
+	private void drawFloors(GL2 gl) {
+		gl.glColor3f(.3f, .3f, .3f);
+		
+		drawFloor(gl, 50, 75, 600, 600);
+		drawFloor(gl, 310, 35, 80, 40);
+	}
+	
+	private void drawFloor(GL2 gl, double x, double y, double w, double l) {
+		
+		// draw floor using many equaly sized squares. 
+		// done to get visual apperance of flashlight while doing vertex shading. 
+		gl.glBegin(GL2.GL_QUADS);
+		for(double i = x; i + 2 <= x + w; i += 2) {
+			for(double j = y; j + 2 <= y + l; j += 2) {
+				gl.glVertex2d(i, j);
+				gl.glVertex2d(i + 2, j);
+				gl.glVertex2d(i + 2, j + 2);
+				gl.glVertex2d(i, j + 2);
+			}
+		}
+		gl.glEnd();
+	}
+	
+	
 	private void drawWalls(GL2 gl) {
-		if (model.viewWalls)
-			gl.glColor3f(0, 255, 0);
+		// draw regular walls
+		if(model.viewWalls)
+			gl.glColor3f(0, 1, 0);
 		else
 			gl.glColor3f(0, 0, 0);
-		drawWall(gl, 50, 75, 20, 600); // right wall
-		drawWall(gl, 70, 655, 560, 20); // upper wall
-		drawWall(gl, 630, 75, 20, 600); // left wall
-		drawWall(gl, 70, 75, 260, 20); // lower right wall.
-		drawWall(gl, 370, 75, 260, 20); // lower left wall.
+		
+		drawWall(gl, 50, 75, 20, 600);	// right wall
+		drawWall(gl, 70, 655, 560, 20);	// upper wall
+		drawWall(gl, 630, 75, 20, 600); // left wall 
+		drawWall(gl, 70, 75, 260, 20);	// lower right wall.
+		drawWall(gl, 370, 75, 260, 20);	// lower left wall.
 
 		// walls that bound user at start.
 		drawWall(gl, 310, 35, 20, 40);
@@ -200,44 +283,92 @@ public final class View implements GLEventListener {
 		drawWall(gl, 122.5, 365, 72.5, 20);
 		drawWall(gl, 122.5, 147.5, 72.5, 20);
 		drawWall(gl, 122.5, 167.5, 20, 145);
+		
+		// draw special walls
+		if(model.viewWalls)
+			// set the color to the wall so that when combined with emission it will be white.
+			// this is so that the wall appears white when a flashlight is shined on it. 
+			gl.glColor3f(.5f, .25f, 0f);
+		else
+			gl.glColor3f(0, 0, 0);
+		// set the emission color of the walls to light blue to make it seem as though the walls are glowing. 
+		gl.glMaterialfv(gl.GL_FRONT, gl.GL_EMISSION, FloatBuffer.wrap(new float[] {.5f,.75f,1f,1f}));
+		drawWall(gl, 350, 100, 10, 10);
+		gl.glMaterialfv(gl.GL_FRONT, gl.GL_EMISSION, FloatBuffer.wrap(new float[] {0f,0f,0f,1f}));
+		
 	}
 
 	private void drawWall(GL2 gl, double x, double y, double w, double l) {
-		gl.glBegin(GL2.GL_QUADS);
-
+		gl.glBegin(GL2.GL_QUADS);		
+		
+		// create rectangular prism with the defined dimensions.
+		// make each face of the prism using many rectanges. this is so
+		//	vertex shading for the flashlight in the game will work effectively.
+		double wSplit = w / Math.floor(w / 2);
+		double lSplit = l / Math.floor(l / 2);
+		double hSplit = wallHeight / Math.floor(wallHeight / 2);
+		
 		// bottom
-		gl.glVertex3d(x, y, 0);
-		gl.glVertex3d(x + w, y, 0);
-		gl.glVertex3d(x + w, y + l, 0);
-		gl.glVertex3d(x, y + l, 0);
-
+		for(double i = x; i + wSplit <= x + w ; i += wSplit) {
+			for(double j = y; j + lSplit <= y + l; j += lSplit) {
+				gl.glVertex3d(i, j, 0);
+				gl.glVertex3d(i + wSplit, j, 0);
+				gl.glVertex3d(i + wSplit, j + lSplit, 0);
+				gl.glVertex3d(i, j + lSplit, 0);
+			}
+		}
+		
 		// top
-		gl.glVertex3d(x, y, wallHeight);
-		gl.glVertex3d(x + w, y, wallHeight);
-		gl.glVertex3d(x + w, y + l, wallHeight);
-		gl.glVertex3d(x, y + l, wallHeight);
+		for(double i = x; i + wSplit <= x + w ; i += wSplit) {
+			for(double j = y; j + lSplit <= y + l; j += lSplit) {
+				gl.glVertex3d(i, j, wallHeight);
+				gl.glVertex3d(i + wSplit, j, wallHeight);
+				gl.glVertex3d(i + wSplit, j + lSplit, wallHeight);
+				gl.glVertex3d(i, j + lSplit, wallHeight);
+			}
+		}
+		
 
 		// left
-		gl.glVertex3d(x, y, wallHeight);
-		gl.glVertex3d(x, y + l, wallHeight);
-		gl.glVertex3d(x, y + l, 0);
-		gl.glVertex3d(x, y, 0);
+		for(double i = y; i + lSplit <= y + l ; i += lSplit) {
+			for(double j = 0; j + hSplit <= wallHeight; j += hSplit) {
+				gl.glVertex3d(x, i, j);
+				gl.glVertex3d(x, i + lSplit, j);
+				gl.glVertex3d(x, i + lSplit, j + hSplit);
+				gl.glVertex3d(x, i, j + hSplit);
+			}
+		}
 		// right
-		gl.glVertex3d(x + w, y, wallHeight);
-		gl.glVertex3d(x + w, y + l, wallHeight);
-		gl.glVertex3d(x + w, y + l, 0);
-		gl.glVertex3d(x + w, y, 0);
+		for(double i = y; i + lSplit <= y + l ; i += lSplit) {
+			for(double j = 0; j + hSplit <= wallHeight; j += hSplit) {
+				gl.glVertex3d(x + w, i, j);
+				gl.glVertex3d(x + w, i + lSplit, j);
+				gl.glVertex3d(x + w, i + lSplit, j + hSplit);
+				gl.glVertex3d(x + w, i, j + hSplit);
+			}
+		}
 
 		// front
-		gl.glVertex3d(x, y, wallHeight);
-		gl.glVertex3d(x + w, y, wallHeight);
-		gl.glVertex3d(x + w, y, 0);
-		gl.glVertex3d(x, y, 0);
+		for(double i = x; i + wSplit <= x + w ; i += wSplit) {
+			for(double j = 0; j + hSplit <= wallHeight; j += hSplit) {
+				gl.glVertex3d(i, y, j);
+				gl.glVertex3d(i + wSplit, y, j);
+				gl.glVertex3d(i + wSplit, y, j + hSplit);
+				gl.glVertex3d(i, y, j + hSplit);
+			}
+		}
 		// back
-		gl.glVertex3d(x, y + l, wallHeight);
-		gl.glVertex3d(x + w, y + l, wallHeight);
-		gl.glVertex3d(x + w, y + l, 0);
-		gl.glVertex3d(x, y + l, 0);
+		for(double i = x; i + wSplit <= x + w ; i += wSplit) {
+			for(double j = 0; j + hSplit <= wallHeight; j += hSplit) {
+				gl.glVertex3d(i, y + l, j);
+				gl.glVertex3d(i + wSplit, y + l, j);
+				gl.glVertex3d(i + wSplit, y + l, j + hSplit);
+				gl.glVertex3d(i, y + l, j + hSplit);
+			}
+		}
+		
+		
+		
 		gl.glEnd();
 
 		model.addWall(x, y, w, l);
@@ -247,8 +378,9 @@ public final class View implements GLEventListener {
 		Point2D.Double p = new Point2D.Double(model.playerLocation.x, model.playerLocation.y);
 
 		int r = model.getPlayerRadius();
+		
+		gl.glColor3f(1, 0, 0);
 
-		gl.glColor3f(255, 0, 0);
 		gl.glBegin(GL2.GL_POLYGON);
 		gl.glVertex2d(p.x - r, p.y - r);
 		gl.glVertex2d(p.x - r, p.y + r);
@@ -264,7 +396,7 @@ public final class View implements GLEventListener {
 		double theta = 0.5 * Math.PI;
 		double delta = Math.PI / 5;
 
-		gl.glColor3f(255, 255, 0);
+		gl.glColor3f(1, 1, 0);
 		gl.glBegin(GL.GL_TRIANGLE_FAN);
 		gl.glVertex2d(cx, cy); // center point
 
