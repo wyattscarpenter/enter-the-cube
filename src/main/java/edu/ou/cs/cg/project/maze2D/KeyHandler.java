@@ -1,7 +1,8 @@
 package edu.ou.cs.cg.project.maze2D;
 
 import java.awt.Component;
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public final class KeyHandler extends KeyAdapter {
 	private final Model model;
@@ -12,6 +13,7 @@ public final class KeyHandler extends KeyAdapter {
 		component.addKeyListener(this);
 	}
 
+	@Override
 	public void keyPressed(KeyEvent e) {
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_LEFT:
@@ -30,7 +32,7 @@ public final class KeyHandler extends KeyAdapter {
 		case KeyEvent.VK_S:
 			model.goBack();
 			break;
-		case KeyEvent.VK_SPACE:
+		case KeyEvent.VK_M:
 			model.skewed = !model.skewed;
 			model.viewWalls = true;
 			break;
@@ -42,6 +44,9 @@ public final class KeyHandler extends KeyAdapter {
 			break;
 		case KeyEvent.VK_CONTROL:
 			model.crouch();
+			break;
+		case KeyEvent.VK_SPACE:
+			model.jump();
 			break;
 		}
 		model.setOriginInSceneCoordinates(model.getOrigin());

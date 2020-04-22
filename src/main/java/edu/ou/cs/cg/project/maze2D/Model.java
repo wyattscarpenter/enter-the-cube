@@ -2,8 +2,13 @@ package edu.ou.cs.cg.project.maze2D;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.util.*;
-import com.jogamp.opengl.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLRunnable;
+
 import edu.ou.cs.cg.utilities.Utilities;
 
 public final class Model {
@@ -51,6 +56,7 @@ public final class Model {
 
 	public void setOriginInSceneCoordinates(Point2D.Double q) {
 		view.getCanvas().invoke(false, new BasicUpdater() {
+			@Override
 			public void update(GL2 gl) {
 				origin = new Point2D.Double(q.x, q.y);
 			}
@@ -59,6 +65,7 @@ public final class Model {
 
 	public void setOriginInViewCoordinates(Point q) {
 		view.getCanvas().invoke(false, new ViewPointUpdater(q) {
+			@Override
 			public void update(double[] p) {
 				origin = new Point2D.Double(p[0], p[1]);
 			}
@@ -67,6 +74,7 @@ public final class Model {
 
 	public void setCursorInViewCoordinates(Point q) {
 		view.getCanvas().invoke(false, new ViewPointUpdater(q) {
+			@Override
 			public void update(double[] p) {
 				cursor.x = p[0];
 				cursor.y = p[1];
@@ -76,6 +84,7 @@ public final class Model {
 
 	public void movePlayer(double x, double y) {
 		view.getCanvas().invoke(false, new BasicUpdater() {
+			@Override
 			public void update(GL2 gl) {
 				playerLocation.x += x;
 				playerLocation.y += y;
@@ -85,6 +94,7 @@ public final class Model {
 
 	public void setPlayer(double x, double y) {
 		view.getCanvas().invoke(false, new BasicUpdater() {
+			@Override
 			public void update(GL2 gl) {
 				playerLocation.x = x;
 				playerLocation.y = y;
@@ -99,6 +109,7 @@ public final class Model {
 
 	// Convenience class to simplify the implementation of most updaters.
 	private abstract class BasicUpdater implements GLRunnable {
+		@Override
 		public final boolean run(GLAutoDrawable drawable) {
 			GL2 gl = drawable.getGL().getGL2();
 			update(gl);
@@ -117,6 +128,7 @@ public final class Model {
 			this.q = q;
 		}
 
+		@Override
 		public final void update(GL2 gl) {
 			int h = view.getHeight();
 			double[] p = Utilities.mapViewToScene(gl, q.x, h - q.y, 0.0);
@@ -190,10 +202,6 @@ public final class Model {
 		}
 	}
 
-	public void jump() {
-		// TODO Auto-generated method stub
-	}
-
 	public void playerReachGoal(double x, double y) {
 		if (x >= 345 && x <= 355 && y >= 370 && y <= 380) {
 			setPlayer(350, 75);
@@ -215,5 +223,11 @@ public final class Model {
 	public void crouch() {
 		stepSize /= 1.1;
 		System.out.println(stepSize);
+	}
+
+	public void jump() {
+		playerLocation.z+=5;
+		//I'm not even going to stop you from multi-jumping. You do you.
+		//Nor have I yet implemented gravity.
 	}
 }
