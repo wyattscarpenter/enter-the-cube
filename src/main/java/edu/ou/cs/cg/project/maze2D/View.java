@@ -9,6 +9,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLJPanel;
+import com.jogamp.opengl.fixedfunc.GLLightingFunc;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.awt.TextRenderer;
@@ -103,10 +104,11 @@ public final class View implements GLEventListener {
 		drawGoal(gl, 350, 375);
 
 		// only draw floor in 3d. only draw player location in 2d.
-		if(model.skewed)
+		if(model.skewed) {
 			drawFloors(gl);
-		else
+		} else {
 			drawPlayer(gl);
+		}
 
 		//drawAxes(gl); //ruins program
 
@@ -144,15 +146,15 @@ public final class View implements GLEventListener {
 
 
 			// enable lighting
-			gl.glEnable( gl.GL_LIGHTING );
-			gl.glEnable( gl.GL_LIGHT0 );
-			gl.glEnable( gl.GL_DEPTH_TEST );
+			gl.glEnable( GLLightingFunc.GL_LIGHTING );
+			gl.glEnable( GLLightingFunc.GL_LIGHT0 );
+			gl.glEnable( GL.GL_DEPTH_TEST );
 			//gl.glShadeModel(gl.GL_FLAT);
 
 
 			// get the object colors from glColor.
-			gl.glColorMaterial(gl.GL_FRONT, gl.GL_AMBIENT_AND_DIFFUSE);
-			gl.glEnable(gl.GL_COLOR_MATERIAL);
+			gl.glColorMaterial(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT_AND_DIFFUSE);
+			gl.glEnable(GLLightingFunc.GL_COLOR_MATERIAL);
 
 
 			// set the color for the flashlight
@@ -160,25 +162,25 @@ public final class View implements GLEventListener {
 			float[] diffuse = {.2f, .2f, .2f, 1f};
 			float[] specular = {0f, 1f, 1f, 1f};
 
-			gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT, ambient, 0);
-			gl.glLightfv(gl.GL_LIGHT0, gl.GL_DIFFUSE, diffuse, 0);
-			gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPECULAR, specular, 0);
+			gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_AMBIENT, ambient, 0);
+			gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_DIFFUSE, diffuse, 0);
+			gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPECULAR, specular, 0);
 
 			// set the position of the flashlight to be at the player's eye
-			gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION, FloatBuffer.wrap(new float[]{
+			gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_POSITION, FloatBuffer.wrap(new float[]{
 					(float) model.playerLocation.x,
 					(float) model.playerLocation.y,
 					(float) model.playerLocation.z,
 					1f}));
 			// set the direction of the flashlight to be the direction the player is facing
-			gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{
+			gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{
 					(float) model.lookPoint.x,
 					(float) model.lookPoint.y,
 					(float) model.lookPoint.z}));
 			// set attributes of the flashlight
-			gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 50.0f);
-			gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 30.0f);
-			gl.glLightf(gl.GL_LIGHT0, gl.GL_CONSTANT_ATTENUATION, .3f);
+			gl.glLightf(GLLightingFunc.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 50.0f);
+			gl.glLightf(GLLightingFunc.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 30.0f);
+			gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_CONSTANT_ATTENUATION, .3f);
 			//	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, .01f);
 			//	        //gl.glLightf(gl.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, .5f);
 			//
@@ -243,10 +245,11 @@ public final class View implements GLEventListener {
 
 	private void drawWalls(GL2 gl) {
 		// draw regular walls
-		if(model.viewWalls)
+		if(model.viewWalls) {
 			gl.glColor3f(0, 1, 0);
-		else
+		} else {
 			gl.glColor3f(0, 0, 0);
+		}
 
 		drawWall(gl, 50, 75, 20, 600);	// right wall
 		drawWall(gl, 70, 655, 560, 20);	// upper wall
@@ -283,16 +286,17 @@ public final class View implements GLEventListener {
 		drawWall(gl, 122.5, 167.5, 20, 145);
 
 		// draw special walls
-		if(model.viewWalls)
+		if(model.viewWalls) {
 			// set the color to the wall so that when combined with emission it will be white.
 			// this is so that the wall appears white when a flashlight is shined on it.
 			gl.glColor3f(.5f, .25f, 0f);
-		else
+		} else {
 			gl.glColor3f(0, 0, 0);
+		}
 		// set the emission color of the walls to light blue to make it seem as though the walls are glowing.
-		gl.glMaterialfv(gl.GL_FRONT, gl.GL_EMISSION, FloatBuffer.wrap(new float[] {.5f,.75f,1f,1f}));
+		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_EMISSION, FloatBuffer.wrap(new float[] {.5f,.75f,1f,1f}));
 		drawWall(gl, 350, 100, 10, 10);
-		gl.glMaterialfv(gl.GL_FRONT, gl.GL_EMISSION, FloatBuffer.wrap(new float[] {0f,0f,0f,1f}));
+		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_EMISSION, FloatBuffer.wrap(new float[] {0f,0f,0f,1f}));
 
 	}
 
