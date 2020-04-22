@@ -24,6 +24,9 @@ public final class Model {
 	public boolean viewWalls = true;
 	private double stepSize = 5; // it's 5
 	public Point3D lookPoint = new Point3D(); // relative to player location
+	public int level = 1;
+
+	public Point3D floatingPlaneLocation = new Point3D(200,200,200);
 
 	public Model(View view) {
 		this.view = view;
@@ -44,12 +47,17 @@ public final class Model {
 	}
 
 	public boolean freeLocation(double x, double y) {
-		for (int i = 0; i < walls.size(); ++i) {
-			if ((x >= walls.get(i)[0] && x <= walls.get(i)[1]) && (y >= walls.get(i)[2] && y <= walls.get(i)[3])) {
-				return false;
+		if(level==1) {
+			for (int i = 0; i < walls.size(); ++i) {
+				if ((x >= walls.get(i)[0] && x <= walls.get(i)[1]) && (y >= walls.get(i)[2] && y <= walls.get(i)[3])) {
+					return false;
+				}
 			}
+			return true;
+		} else {
+			//TODO: implement cube solidity
+			return true;
 		}
-		return true;
 	}
 
 	public void setOriginInSceneCoordinates(Point2D.Double q) {
@@ -201,9 +209,14 @@ public final class Model {
 	}
 
 	public void playerReachGoal(double x, double y) {
-		if (x >= 345 && x <= 355 && y >= 370 && y <= 380) {
+		if (level == 1 && x >= 345 && x <= 355 && y >= 370 && y <= 380) {
 			setPlayer(350, 75);
-			viewWalls = !viewWalls;
+			level = 2;
+		} else {
+			if (level == 2 && playerLocation.closeEnough(floatingPlaneLocation )) {
+				setPlayer(350, 75);
+				level = 1;
+			}
 		}
 	}
 

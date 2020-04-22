@@ -1,27 +1,28 @@
 package enter.the.cube;
 
 import java.awt.Dimension;
-import java.awt.event.*;
-import javax.swing.*;
-import com.jogamp.opengl.*;
-import com.jogamp.opengl.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-public final class Application
-	implements Runnable
-{
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
+import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.awt.GLJPanel;
+
+public final class Application implements Runnable {
 
 	public static final String		DEFAULT_NAME = "Maze2D";
 	public static final Dimension	DEFAULT_SIZE = new Dimension(700, 700);
 
-	public static void	main(String[] args)
-	{
+	public static void	main(String[] args) {
 		SwingUtilities.invokeLater(new Application(args));
 	}
 
 	public Application(String[] args) {}
 
-	public void	run()
-	{
+	public void	run() {
 		GLProfile		profile = GLProfile.getDefault();
 
 		System.out.println("Running with OpenGL version " + profile.getName());
@@ -43,10 +44,10 @@ public final class Application
 
 		// Exit when the user clicks the frame's close button
 		frame.addWindowListener(new WindowAdapter() {
-				public void windowClosing(WindowEvent e) {
-					System.exit(0);
-				}
-			});
+			public void windowClosing(WindowEvent e) {
+				System.exit(0);
+			}
+		});
 		//make a view to control our canvas or something
 		new View(canvas);
 	}

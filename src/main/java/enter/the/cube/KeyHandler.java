@@ -32,7 +32,7 @@ public final class KeyHandler extends KeyAdapter {
 		case KeyEvent.VK_S:
 			model.goBack();
 			break;
-		case KeyEvent.VK_M:
+		case KeyEvent.VK_TAB:
 			model.skewed = !model.skewed;
 			model.viewWalls = true;
 			break;

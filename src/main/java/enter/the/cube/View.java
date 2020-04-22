@@ -32,7 +32,7 @@ public final class View implements GLEventListener {
 
 	public View(GLJPanel canvas) {
 		this.canvas = canvas;
-
+		canvas.setFocusTraversalKeysEnabled(false); //let tab be a game control
 		canvas.addGLEventListener(this);
 
 		// Initialize model (scene data and parameter manager)
@@ -110,22 +110,14 @@ public final class View implements GLEventListener {
 
 		//drawAxes(gl); //ruins program
 
+		drawCube(gl,100,100,100);
+		drawFloatingPlane(gl,model.floatingPlaneLocation.x,model.floatingPlaneLocation.y,model.floatingPlaneLocation.z);
+
+
 		// Draw the scene
 		drawMode(drawable); // Draw mode text
 
 		gl.glFlush(); // Finish and display
-	}
-
-	@SuppressWarnings("unused")
-	private void drawAxes(GL2 gl) {
-		gl.glBegin(GL2.GL_LINE);
-		gl.glColor3f(255, 0, 0);
-		gl.glVertex2d(0, 0);
-		gl.glVertex2d(1000, 0);
-		gl.glColor3f(0, 255, 0);
-		gl.glVertex2d(0, 0);
-		gl.glVertex2d(0, 1000);
-		gl.glEnd();
 	}
 
 	private void initPipeline(GLAutoDrawable drawable) {
@@ -373,6 +365,73 @@ public final class View implements GLEventListener {
 		gl.glEnd();
 
 		model.addWall(x, y, w, l);
+	}
+
+	private void drawCube(GL2 gl, double x, double y, double z) { //draw a unit cube (x,y,z) to (x+1,y+1,z+1)
+		double l = 100;
+		double w = 100;
+		gl.glColor3f(1, 1, 1);
+		gl.glBegin(GL2.GL_QUADS);
+		// bottom
+		gl.glVertex3d(x, y, z);
+		gl.glVertex3d(x + w, y, z);
+		gl.glVertex3d(x + w, y + l, z);
+		gl.glVertex3d(x, y + l, z);
+
+		// top
+		gl.glVertex3d(x, y, z+l);
+		gl.glVertex3d(x + w, y, z+l);
+		gl.glVertex3d(x + w, y + l, z+l);
+		gl.glVertex3d(x, y + l, z+l);
+
+		// left
+		gl.glVertex3d(x, y, z+l);
+		gl.glVertex3d(x, y + l, z+l);
+		gl.glVertex3d(x, y + l, z);
+		gl.glVertex3d(x, y, z);
+		// right
+		gl.glVertex3d(x + w, y, z+l);
+		gl.glVertex3d(x + w, y + l, z+l);
+		gl.glVertex3d(x + w, y + l, z);
+		gl.glVertex3d(x + w, y, z);
+
+		// front
+		gl.glVertex3d(x, y, z+l);
+		gl.glVertex3d(x + w, y, z+l);
+		gl.glVertex3d(x + w, y, z);
+		gl.glVertex3d(x, y, z);
+		// back
+		gl.glVertex3d(x, y + l, z+l);
+		gl.glVertex3d(x + w, y + l, z+l);
+		gl.glVertex3d(x + w, y + l, z);
+		gl.glVertex3d(x, y + l, z);
+		gl.glEnd();
+	}
+
+	private void drawFloatingPlane(GL2 gl, double x, double y, double z) {
+		//TODO: make plane float cool
+		double l = 10;
+		double w = 10;
+		gl.glColor3f(1, 1, 1);
+		gl.glBegin(GL2.GL_QUADS);
+		// bottom
+		gl.glVertex3d(x, y, z);
+		gl.glVertex3d(x + w, y, z);
+		gl.glVertex3d(x + w, y + l, z);
+		gl.glVertex3d(x, y + l, z);
+		gl.glEnd();
+	}
+
+	@SuppressWarnings("unused")
+	private void drawAxes(GL2 gl) {
+		gl.glBegin(GL2.GL_LINE);
+		gl.glColor3f(255, 0, 0);
+		gl.glVertex2d(0, 0);
+		gl.glVertex2d(1000, 0);
+		gl.glColor3f(0, 255, 0);
+		gl.glVertex2d(0, 0);
+		gl.glVertex2d(0, 1000);
+		gl.glEnd();
 	}
 
 	private void drawPlayer(GL2 gl) {
