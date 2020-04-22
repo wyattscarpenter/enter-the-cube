@@ -1,13 +1,15 @@
 package edu.ou.cs.cg.project.maze2D;
 
-import java.awt.*;
+import java.awt.Font;
 import java.awt.geom.Point2D;
 import java.nio.FloatBuffer;
-import java.text.DecimalFormat;
-import java.util.List;
-import com.jogamp.opengl.*;
+
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLJPanel;
-import com.jogamp.opengl.glu.*;
+import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.awt.TextRenderer;
 
@@ -25,9 +27,8 @@ public final class View implements GLEventListener {
 	private final FPSAnimator animator;
 	private final Model model;
 
-	private final KeyHandler			keyHandler;
 	public final MouseHandler			mouseHandler;
-	
+
 	private double wallHeight = 50;
 
 	public View(GLJPanel canvas) {
@@ -59,26 +60,27 @@ public final class View implements GLEventListener {
 		return h;
 	}
 
+	@Override
 	public void init(GLAutoDrawable drawable) {
 		w = drawable.getSurfaceWidth();
 		h = drawable.getSurfaceHeight();
-
 		renderer = new TextRenderer(new Font("Monospaced", Font.PLAIN, 12), true, true);
-
 		initPipeline(drawable);
 	}
 
+	@Override
 	public void dispose(GLAutoDrawable drawable) {
 		renderer = null;
 	}
 
+	@Override
 	public void display(GLAutoDrawable drawable) {
 		// updatePipeline(drawable);
-
 		update(drawable);
 		render(drawable);
 	}
 
+	@Override
 	public void reshape(GLAutoDrawable drawable, int x, int y, int w, int h) {
 		this.w = w;
 		this.h = h;
@@ -94,20 +96,18 @@ public final class View implements GLEventListener {
 	private void render(GLAutoDrawable drawable)
 	{
 		GL2	gl = drawable.getGL().getGL2();
-		if(model.viewWalls)
-	      gl.glClear( GL2.GL_COLOR_BUFFER_BIT |  
-	    	      GL2.GL_DEPTH_BUFFER_BIT );
-		
+		if(model.viewWalls){gl.glClear(GL2.GL_COLOR_BUFFER_BIT|GL2.GL_DEPTH_BUFFER_BIT);}
+
 		setProjection(gl);
 		drawWalls(gl);
 		drawGoal(gl, 350, 375);
-		
+
 		// only draw floor in 3d. only draw player location in 2d.
 		if(model.skewed)
 			drawFloors(gl);
 		else
 			drawPlayer(gl);
-		
+
 		//drawAxes(gl); //ruins program
 
 		// Draw the scene
@@ -141,49 +141,49 @@ public final class View implements GLEventListener {
 		gl.glLoadIdentity(); // Set to identity matrix
 		if (model.skewed) {
 			w = 700;
-		    
-		    
-			// enable lighting 
-		    gl.glEnable( gl.GL_LIGHTING ); 
-		    gl.glEnable( gl.GL_LIGHT0 );
-		    gl.glEnable( gl.GL_DEPTH_TEST ); 
-		    //gl.glShadeModel(gl.GL_FLAT);
-		    
-		    
-		    // get the object colors from glColor.
-		    gl.glColorMaterial(gl.GL_FRONT, gl.GL_AMBIENT_AND_DIFFUSE);
-		    gl.glEnable(gl.GL_COLOR_MATERIAL);
-		    
-		    
-		    // set the color for the flashlight
-		    float[] ambient = {.2f, .2f, .2f, .4f};
-		    float[] diffuse = {.2f, .2f, .2f, 1f};
-		    float[] specular = {0f, 1f, 1f, 1f};
-		    
-		    gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT, ambient, 0);
-		    gl.glLightfv(gl.GL_LIGHT0, gl.GL_DIFFUSE, diffuse, 0);
-		    gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPECULAR, specular, 0);
-	        
-		    // set the position of the flashlight to be at the player's eye
-	        gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION, FloatBuffer.wrap(new float[]{
-	        		(float) model.playerLocation.x, 
-	        		(float) model.playerLocation.y, 
-	        		(float) model.playerLocation.z,
-	        		1f}));
-	        // set the direction of the flashlight to be the direction the player is facing
-	        gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{
-	        		(float) model.lookPoint.x, 
-	        		(float) model.lookPoint.y, 
-	        		(float) model.lookPoint.z}));
-	        // set attributes of the flashlight
-	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 50.0f);
-	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 30.0f);		
-	        gl.glLightf(gl.GL_LIGHT0, gl.GL_CONSTANT_ATTENUATION, .3f);	
-//	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, .01f);
-//	        //gl.glLightf(gl.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, .5f);
-//	        
-			
-			
+
+
+			// enable lighting
+			gl.glEnable( gl.GL_LIGHTING );
+			gl.glEnable( gl.GL_LIGHT0 );
+			gl.glEnable( gl.GL_DEPTH_TEST );
+			//gl.glShadeModel(gl.GL_FLAT);
+
+
+			// get the object colors from glColor.
+			gl.glColorMaterial(gl.GL_FRONT, gl.GL_AMBIENT_AND_DIFFUSE);
+			gl.glEnable(gl.GL_COLOR_MATERIAL);
+
+
+			// set the color for the flashlight
+			float[] ambient = {.2f, .2f, .2f, .4f};
+			float[] diffuse = {.2f, .2f, .2f, 1f};
+			float[] specular = {0f, 1f, 1f, 1f};
+
+			gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT, ambient, 0);
+			gl.glLightfv(gl.GL_LIGHT0, gl.GL_DIFFUSE, diffuse, 0);
+			gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPECULAR, specular, 0);
+
+			// set the position of the flashlight to be at the player's eye
+			gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION, FloatBuffer.wrap(new float[]{
+					(float) model.playerLocation.x,
+					(float) model.playerLocation.y,
+					(float) model.playerLocation.z,
+					1f}));
+			// set the direction of the flashlight to be the direction the player is facing
+			gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{
+					(float) model.lookPoint.x,
+					(float) model.lookPoint.y,
+					(float) model.lookPoint.z}));
+			// set attributes of the flashlight
+			gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 50.0f);
+			gl.glLightf(gl.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 30.0f);
+			gl.glLightf(gl.GL_LIGHT0, gl.GL_CONSTANT_ATTENUATION, .3f);
+			//	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, .01f);
+			//	        //gl.glLightf(gl.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, .5f);
+			//
+
+
 			//set up the camera and position to accommodate 3D
 			glu.gluPerspective(60, 1, 1, 10000);
 			/*
@@ -204,10 +204,8 @@ public final class View implements GLEventListener {
 					//look at an imaginary point that's in a good place
 					model.playerLocation.x + model.lookPoint.x, model.playerLocation.y + model.lookPoint.y, model.playerLocation.z + model.lookPoint.z,
 					0, 0, 1); //up is up
-		    
-		   
 		} else {
-			gl.glDisable( GL2.GL_LIGHTING ); 
+			gl.glDisable( GL2.GL_LIGHTING );
 			//2D translate and scale
 			glu.gluOrtho2D(0.0f, Application.DEFAULT_SIZE.getWidth(), 0.0f, Application.DEFAULT_SIZE.getHeight());
 			// reset any skewed positioning to regular positioning
@@ -221,15 +219,15 @@ public final class View implements GLEventListener {
 	//**********************************************************************
 	private void drawFloors(GL2 gl) {
 		gl.glColor3f(.3f, .3f, .3f);
-		
+
 		drawFloor(gl, 50, 75, 600, 600);
 		drawFloor(gl, 310, 35, 80, 40);
 	}
-	
+
 	private void drawFloor(GL2 gl, double x, double y, double w, double l) {
-		
-		// draw floor using many equaly sized squares. 
-		// done to get visual apperance of flashlight while doing vertex shading. 
+
+		// draw floor using many equaly sized squares.
+		// done to get visual apperance of flashlight while doing vertex shading.
 		gl.glBegin(GL2.GL_QUADS);
 		for(double i = x; i + 2 <= x + w; i += 2) {
 			for(double j = y; j + 2 <= y + l; j += 2) {
@@ -241,18 +239,18 @@ public final class View implements GLEventListener {
 		}
 		gl.glEnd();
 	}
-	
-	
+
+
 	private void drawWalls(GL2 gl) {
 		// draw regular walls
 		if(model.viewWalls)
 			gl.glColor3f(0, 1, 0);
 		else
 			gl.glColor3f(0, 0, 0);
-		
+
 		drawWall(gl, 50, 75, 20, 600);	// right wall
 		drawWall(gl, 70, 655, 560, 20);	// upper wall
-		drawWall(gl, 630, 75, 20, 600); // left wall 
+		drawWall(gl, 630, 75, 20, 600); // left wall
 		drawWall(gl, 70, 75, 260, 20);	// lower right wall.
 		drawWall(gl, 370, 75, 260, 20);	// lower left wall.
 
@@ -283,31 +281,31 @@ public final class View implements GLEventListener {
 		drawWall(gl, 122.5, 365, 72.5, 20);
 		drawWall(gl, 122.5, 147.5, 72.5, 20);
 		drawWall(gl, 122.5, 167.5, 20, 145);
-		
+
 		// draw special walls
 		if(model.viewWalls)
 			// set the color to the wall so that when combined with emission it will be white.
-			// this is so that the wall appears white when a flashlight is shined on it. 
+			// this is so that the wall appears white when a flashlight is shined on it.
 			gl.glColor3f(.5f, .25f, 0f);
 		else
 			gl.glColor3f(0, 0, 0);
-		// set the emission color of the walls to light blue to make it seem as though the walls are glowing. 
+		// set the emission color of the walls to light blue to make it seem as though the walls are glowing.
 		gl.glMaterialfv(gl.GL_FRONT, gl.GL_EMISSION, FloatBuffer.wrap(new float[] {.5f,.75f,1f,1f}));
 		drawWall(gl, 350, 100, 10, 10);
 		gl.glMaterialfv(gl.GL_FRONT, gl.GL_EMISSION, FloatBuffer.wrap(new float[] {0f,0f,0f,1f}));
-		
+
 	}
 
 	private void drawWall(GL2 gl, double x, double y, double w, double l) {
-		gl.glBegin(GL2.GL_QUADS);		
-		
+		gl.glBegin(GL2.GL_QUADS);
+
 		// create rectangular prism with the defined dimensions.
 		// make each face of the prism using many rectanges. this is so
 		//	vertex shading for the flashlight in the game will work effectively.
 		double wSplit = w / Math.floor(w / 2);
 		double lSplit = l / Math.floor(l / 2);
 		double hSplit = wallHeight / Math.floor(wallHeight / 2);
-		
+
 		// bottom
 		for(double i = x; i + wSplit <= x + w ; i += wSplit) {
 			for(double j = y; j + lSplit <= y + l; j += lSplit) {
@@ -317,7 +315,7 @@ public final class View implements GLEventListener {
 				gl.glVertex3d(i, j + lSplit, 0);
 			}
 		}
-		
+
 		// top
 		for(double i = x; i + wSplit <= x + w ; i += wSplit) {
 			for(double j = y; j + lSplit <= y + l; j += lSplit) {
@@ -327,7 +325,7 @@ public final class View implements GLEventListener {
 				gl.glVertex3d(i, j + lSplit, wallHeight);
 			}
 		}
-		
+
 
 		// left
 		for(double i = y; i + lSplit <= y + l ; i += lSplit) {
@@ -366,9 +364,9 @@ public final class View implements GLEventListener {
 				gl.glVertex3d(i, y + l, j + hSplit);
 			}
 		}
-		
-		
-		
+
+
+
 		gl.glEnd();
 
 		model.addWall(x, y, w, l);
@@ -378,7 +376,7 @@ public final class View implements GLEventListener {
 		Point2D.Double p = new Point2D.Double(model.playerLocation.x, model.playerLocation.y);
 
 		int r = model.getPlayerRadius();
-		
+
 		gl.glColor3f(1, 0, 0);
 
 		gl.glBegin(GL2.GL_POLYGON);
@@ -434,5 +432,4 @@ public final class View implements GLEventListener {
 
 		renderer.endRendering();
 	}
-
 }
