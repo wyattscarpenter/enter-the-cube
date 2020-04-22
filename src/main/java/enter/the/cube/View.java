@@ -116,6 +116,7 @@ public final class View implements GLEventListener {
 		gl.glFlush(); // Finish and display
 	}
 
+	@SuppressWarnings("unused")
 	private void drawAxes(GL2 gl) {
 		gl.glBegin(GL2.GL_LINE);
 		gl.glColor3f(255, 0, 0);
