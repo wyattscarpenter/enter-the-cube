@@ -25,9 +25,15 @@ public final class Model {
 	private double stepSize = 5; // it's 5
 	public Point3D lookPoint = new Point3D(); // relative to player location
 	public int level = 1;
+	public final double g = 9.8; //there's no reason to make this earth gravity, but I did.
+	public Point3D gravityVector = new Point3D();
+	public Point3D up  = new Point3D(); //just a convenience for gravityVector.unit().multiply(-1))
 
 	public Point3D floatingPlaneLocation = new Point3D(200,200,200);
 	public Point3D cubeCubeLocation = new Point3D(1000,1000,1000);
+
+	private Point3D level1Start = new Point3D(350, 75, 0);
+	private Point3D level2Start = new Point3D(1200, 1200, 1200);
 
 	public Model(View view) {
 		this.view = view;
@@ -47,7 +53,7 @@ public final class Model {
 		return playerRadius;
 	}
 
-	public boolean freeLocation(double x, double y) {
+	public boolean freeLocation(double x, double y, double z) {
 		if(level==1) {
 			for (int i = 0; i < walls.size(); ++i) {
 				if ((x >= walls.get(i)[0] && x <= walls.get(i)[1]) && (y >= walls.get(i)[2] && y <= walls.get(i)[3])) {
@@ -89,14 +95,14 @@ public final class Model {
 		});
 	}
 
-	public void movePlayer(double x, double y) {
-		view.getCanvas().invoke(false, new BasicUpdater() {
-			@Override
-			public void update(GL2 gl) {
-				playerLocation.x += x;
-				playerLocation.y += y;
-			}
-		});
+	public boolean movePlayer(double x, double y, double z) {
+		if(freeLocation(playerLocation.x + x, playerLocation.y + y, playerLocation.z+z)) {
+			playerLocation.add(x,y,z);
+			playerReachGoal(playerLocation.x, playerLocation.y);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public void addWall(double x, double y, double w, double h) {
@@ -140,81 +146,55 @@ public final class Model {
 	public void goLeft() {
 		if (skewed) {
 			// remember that the left perp of a vector <x,y> is <-y,x>
-			if (freeLocation(playerLocation.y - lookPoint.y, playerLocation.x + lookPoint.x)) {
-				movePlayer(-lookPoint.y, lookPoint.x);
-				playerReachGoal(playerLocation.x - stepSize, playerLocation.y);
-			}
+			movePlayer(-lookPoint.y, lookPoint.x, 0);
 		} else {
-			if (freeLocation(playerLocation.x - playerRadius - stepSize, playerLocation.y - playerRadius)
-					&& freeLocation(playerLocation.x - playerRadius - stepSize, playerLocation.y + playerRadius)) {
-				movePlayer(-stepSize, 0);
-				playerReachGoal(playerLocation.x - stepSize, playerLocation.y);
-			}
+			movePlayer(-stepSize, 0, 0);
 		}
 	}
 
 	public void goRight() {
 		if (skewed) {
 			// remember that the right perp of a vector <x,y> is <y,-x>
-			if (freeLocation(playerLocation.y + lookPoint.y, playerLocation.x - lookPoint.x)) {
-				movePlayer(lookPoint.y, -lookPoint.x);
-				playerReachGoal(playerLocation.x - stepSize, playerLocation.y);
-			}
+			movePlayer(lookPoint.y, -lookPoint.x, 0);
 		} else {
-			if (freeLocation(playerLocation.x + playerRadius + stepSize, playerLocation.y - playerRadius)
-					&& freeLocation(playerLocation.x + playerRadius + stepSize, playerLocation.y + playerRadius)) {
-				movePlayer(stepSize, 0);
-				playerReachGoal(playerLocation.x + stepSize, playerLocation.y);
-			}
+			movePlayer(stepSize, 0, 0);
 		}
 	}
 
 	public void goForward() {
 		if (skewed) {
-			if (freeLocation(playerLocation.x + lookPoint.x, playerLocation.y + lookPoint.y)) {
-				movePlayer(lookPoint.x, lookPoint.y);
-				playerReachGoal(playerLocation.x - stepSize, playerLocation.y);
-			}
+			movePlayer(lookPoint.x, lookPoint.y, 0);
 		} else {
-			if (freeLocation(playerLocation.x - playerRadius, playerLocation.y + playerRadius + stepSize)
-					&& freeLocation(playerLocation.x + playerRadius, playerLocation.y + playerRadius + stepSize)) {
-				movePlayer(0, stepSize);
-				playerReachGoal(playerLocation.x, playerLocation.y + stepSize);
-			}
+			movePlayer(0, stepSize, 0);
 		}
 	}
 
 	public void goBack() {
 		if (skewed) {
-			if (freeLocation(playerLocation.x + -lookPoint.x, playerLocation.y + -lookPoint.y)) {
-				movePlayer(-lookPoint.x, -lookPoint.y);
-				playerReachGoal(playerLocation.x - stepSize, playerLocation.y);
-			}
+			movePlayer(-lookPoint.x, -lookPoint.y, 0);
 		} else {
-			if (freeLocation(playerLocation.x - playerRadius, playerLocation.y - playerRadius - stepSize)
-					&& freeLocation(playerLocation.x + playerRadius, playerLocation.y - playerRadius - stepSize)) {
-				movePlayer(0, -stepSize);
-				playerReachGoal(playerLocation.x, playerLocation.y - stepSize);
-			}
+			movePlayer(0, -stepSize, 0);
 		}
 	}
 
 	public void playerReachGoal(double x, double y) {
 		if (level == 1 && x >= 345 && x <= 355 && y >= 370 && y <= 380) {
-			playerLocation.set(cubeCubeLocation);
+			playerLocation.set(level2Start);
 			level = 2;
 		} else {
 			if (level == 2 && playerLocation.closeEnough(floatingPlaneLocation)) {
-				playerLocation.set(350, 75, 0);
+				playerLocation.set(level1Start);
 				level = 1;
 			}
 		}
 	}
 
-	public void mouselook(Point point) {
-		lookPoint.x = Math.cos((view.getWidth() - point.x) / (20 * Math.PI)) * stepSize;
-		lookPoint.y = Math.sin((view.getWidth() - point.x) / (20 * Math.PI)) * stepSize;
-		lookPoint.z = (5.0 - point.y / 60.0) * stepSize;
+	public void mouselook(Point mousepoint) {
+		lookPoint.x = Math.cos((view.getWidth() - mousepoint.x) / (20 * Math.PI)) * stepSize;
+		lookPoint.y = Math.sin((view.getWidth() - mousepoint.x) / (20 * Math.PI)) * stepSize;
+		lookPoint.z = (5.0 - mousepoint.y / 60.0) * stepSize;
+		//we want to translate the lookpoint from gravity-dependent to world-coordinate
+		lookPoint.divide(up);
 	}
 
 	public void sprint() {

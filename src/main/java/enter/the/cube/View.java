@@ -179,24 +179,19 @@ public final class View implements GLEventListener {
 
 			//set up the camera and position to accommodate 3D
 			glu.gluPerspective(60, 1, 1, 10000);
-			/*
 			//this in part deals with some funkiness regarding how we set up coordinates
 			//when we switch to actual 3D coordinates we'll have to figure this out again
 			//remember that our mouse coordinates are both 0-700 in Cartesian I right now.
 			//our x and y are with respect to the maze plane and our z is up out of the plane
 			//so we have to do some trig to find a nice point to look at i guess
-			double lookleftright = model.playerLocation.x + Math.cos((w-model.cursor.x)/(20*Math.PI));
-			double lookforwardbackward = model.playerLocation.y + Math.sin((w-model.cursor.x)/(20*Math.PI));
-			glu.gluLookAt(model.playerLocation.x, model.playerLocation.y, 10, //hover right above the red square
-					lookleftright, lookforwardbackward, 20*(1-model.cursor.y/700), //look at an imaginary point that's in a good place
-					0, 0, 1); //up is up
-			 */
 			glu.gluLookAt(
-					// hover right above the red square
+					//look from player location
 					model.playerLocation.x, model.playerLocation.y, model.playerLocation.z,
 					//look at an imaginary point that's in a good place
 					model.playerLocation.x + model.lookPoint.x, model.playerLocation.y + model.lookPoint.y, model.playerLocation.z + model.lookPoint.z,
-					0, 0, 1); //up is up
+					//what is up but "not down"?
+					model.up.x, model.up.y, model.up.z);
+			System.out.println(model.up);
 		} else {
 			gl.glDisable( GL2.GL_LIGHTING );
 			//2D translate and scale
@@ -310,7 +305,6 @@ public final class View implements GLEventListener {
 				gl.glVertex3d(i, j + lSplit, 0);
 			}
 		}
-
 		// top
 		for(double i = x; i + wSplit <= x + w ; i += wSplit) {
 			for(double j = y; j + lSplit <= y + l; j += lSplit) {
@@ -320,7 +314,6 @@ public final class View implements GLEventListener {
 				gl.glVertex3d(i, j + lSplit, wallHeight);
 			}
 		}
-
 
 		// left
 		for(double i = y; i + lSplit <= y + l ; i += lSplit) {
@@ -359,8 +352,6 @@ public final class View implements GLEventListener {
 				gl.glVertex3d(i, y + l, j + hSplit);
 			}
 		}
-
-
 
 		gl.glEnd();
 
@@ -477,6 +468,8 @@ public final class View implements GLEventListener {
 	}
 
 	private void drawCubeCube(GL2 gl) {
+		//I also want to handle gravity here
+		//TODO: turn this off for level 1
 		double x = model.cubeCubeLocation.x;
 		double y = model.cubeCubeLocation.y;
 		double z = model.cubeCubeLocation.z;
@@ -485,6 +478,16 @@ public final class View implements GLEventListener {
 				for (int k : j) {
 					if(k==1) {
 						drawCube(gl,x,y,z);
+						/* test code, remove this line:*/ model.level = 2;
+						if(model.level==2) {
+							Point3D pull = new Point3D(x+50,y+50,z+50);
+							pull.subtract(model.playerLocation);
+							pull.divide(pull.magnitude()*pull.magnitude());
+							pull.multiply(model.g);
+							model.gravityVector.add(pull);
+						} else {
+							model.gravityVector.set(0,0,0);
+						}
 					}
 					x+=100;
 				}
@@ -494,7 +497,9 @@ public final class View implements GLEventListener {
 			z+=100;
 			y=model.cubeCubeLocation.y;
 		}
-
+		model.movePlayer(model.gravityVector.x, model.gravityVector.y, model.gravityVector.z);
+		model.up.set(model.gravityVector.unit().multiply(-1));
+		//model.lookPoint.multiply(model.gravityVector.unit()); //hmm
 	}
 
 	private void drawMode(GLAutoDrawable drawable) {

@@ -1,6 +1,8 @@
 package enter.the.cube;
 
 public class Point3D { //note that this class is also used for vector math
+	public static final Point3D zero = new Point3D(0,0,0);
+
 	public double x;
 	public double y;
 	public double z;
@@ -44,7 +46,8 @@ public class Point3D { //note that this class is also used for vector math
 	//vector/point math stuff
 
 	//note that all of these are in-place
-	//though we could easily make them new-point
+	//though we could easily make them new-point.
+	//based on the sort of code I've been trying to write, I am almost sure it should have been new-point.
 
 	//note: maybe the point p versions should do the trivial re-implementation
 	//for code reuse/correctness reasons
@@ -74,16 +77,19 @@ public class Point3D { //note that this class is also used for vector math
 		this.z -= p.z;
 	}
 
-	public void multiply(double x, double y, double z) {
+	public Point3D multiply(double x, double y, double z) {
 		this.x *= x;
 		this.y *= y;
 		this.z *= z;
+		return this;
 	}
 
-	public void multiply(Point3D p) {
-		this.x *= p.x;
-		this.y *= p.y;
-		this.z *= p.z;
+	public Point3D multiply(Point3D p) {
+		return multiply(p.x, p.y, p.z);
+	}
+
+	public Point3D multiply(double scalar) {
+		return multiply(scalar, scalar, scalar);
 	}
 
 	public void divide(double x, double y, double z) {
@@ -93,9 +99,11 @@ public class Point3D { //note that this class is also used for vector math
 	}
 
 	public void divide(Point3D p) {
-		this.x /= p.x;
-		this.y /= p.y;
-		this.z /= p.z;
+		divide(p.x, p.y, p.z);
+	}
+
+	public void divide(double scalar) {
+		divide(scalar, scalar, scalar);
 	}
 
 	public double dot(double x, double y, double z) {
@@ -112,5 +120,22 @@ public class Point3D { //note that this class is also used for vector math
 
 	public Point3D cross(Point3D p) {
 		return cross(p.x, p.y, p.z);
+	}
+
+	public double magnitude() {
+		return distance(zero);
+	}
+
+	public double distance(Point3D p) {
+		return Math.sqrt(Math.pow(this.x-p.x,2)+Math.pow(this.y-p.y,2)+Math.pow(this.z-p.z,2));
+	}
+
+	public Point3D unit() {
+		return new Point3D(x/magnitude(),y/magnitude(),z/magnitude());
+	}
+
+	public String toString() {
+		return "("+x+", "+y+", "+z+")";
+
 	}
 }
