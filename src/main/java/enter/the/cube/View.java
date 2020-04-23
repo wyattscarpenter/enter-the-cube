@@ -478,7 +478,7 @@ public final class View implements GLEventListener {
 				for (int k : j) {
 					if(k==1) {
 						drawCube(gl,x,y,z);
-						/* test code, remove this line:*/ model.level = 2;
+						///* test code, remove this line:*/ model.level = 2;
 						if(model.level==2) {
 							Point3D pull = new Point3D(x+50,y+50,z+50);
 							pull.subtract(model.playerLocation);
@@ -486,7 +486,7 @@ public final class View implements GLEventListener {
 							pull.multiply(model.g);
 							model.gravityVector.add(pull);
 						} else {
-							model.gravityVector.set(0,0,0);
+							model.gravityVector.set(0,0,-1);
 						}
 					}
 					x+=100;

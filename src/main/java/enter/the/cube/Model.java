@@ -55,6 +55,7 @@ public final class Model {
 
 	public boolean freeLocation(double x, double y, double z) {
 		if(level==1) {
+			if(z<10) {return false;} //floor
 			for (int i = 0; i < walls.size(); ++i) {
 				if ((x >= walls.get(i)[0] && x <= walls.get(i)[1]) && (y >= walls.get(i)[2] && y <= walls.get(i)[3])) {
 					return false;
@@ -62,7 +63,23 @@ public final class Model {
 			}
 			return true;
 		} else {
-			//TODO: implement cube solidity
+			double xcorner = cubeCubeLocation.x;
+			double ycorner = cubeCubeLocation.y;
+			double zcorner = cubeCubeLocation.z;
+			for (int[][] i : cubeCube) {
+				for (int[] j : i) {
+					for (int k : j) {
+						if(k==1 && x >= xcorner && x <= xcorner+100 && y >= ycorner && y <= ycorner+100 && z >= zcorner && z <= zcorner+100) {
+							return false;
+						}
+						xcorner+=100;
+					}
+					ycorner+=100;
+					xcorner=cubeCubeLocation.x;
+				}
+				zcorner+=100;
+				ycorner=cubeCubeLocation.y;
+			}
 			return true;
 		}
 	}
@@ -193,8 +210,10 @@ public final class Model {
 		lookPoint.x = Math.cos((view.getWidth() - mousepoint.x) / (20 * Math.PI)) * stepSize;
 		lookPoint.y = Math.sin((view.getWidth() - mousepoint.x) / (20 * Math.PI)) * stepSize;
 		lookPoint.z = (5.0 - mousepoint.y / 60.0) * stepSize;
-		//we want to translate the lookpoint from gravity-dependent to world-coordinate
-		lookPoint.divide(up);
+		if(level==2) {
+			//we want to translate the lookpoint from gravity-dependent to world-coordinate
+			lookPoint.divide(up);
+		}
 	}
 
 	public void sprint() {
@@ -210,7 +229,6 @@ public final class Model {
 	public void jump() {
 		playerLocation.z+=stepSize;
 		//I'm not even going to stop you from multi-jumping. You do you.
-		//Nor have I yet implemented gravity.
 	}
 
 	public int[][][] cubeCube = {
