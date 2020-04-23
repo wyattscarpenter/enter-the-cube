@@ -112,7 +112,7 @@ public final class View implements GLEventListener {
 
 		drawCube(gl,100,100,100);
 		drawFloatingPlane(gl,model.floatingPlaneLocation.x,model.floatingPlaneLocation.y,model.floatingPlaneLocation.z);
-
+		drawCubeCube(gl);
 
 		// Draw the scene
 		drawMode(drawable); // Draw mode text
@@ -474,6 +474,27 @@ public final class View implements GLEventListener {
 
 		gl.glVertex2d(cx + 5 * Math.cos(theta), cy + 5 * Math.sin(theta));
 		gl.glEnd();
+	}
+
+	private void drawCubeCube(GL2 gl) {
+		double x = model.cubeCubeLocation.x;
+		double y = model.cubeCubeLocation.y;
+		double z = model.cubeCubeLocation.z;
+		for (int[][] i : model.cubeCube) {
+			for (int[] j : i) {
+				for (int k : j) {
+					if(k==1) {
+						drawCube(gl,x,y,z);
+					}
+					x+=100;
+				}
+				y+=100;
+				x=model.cubeCubeLocation.x;
+			}
+			z+=100;
+			y=model.cubeCubeLocation.y;
+		}
+
 	}
 
 	private void drawMode(GLAutoDrawable drawable) {
