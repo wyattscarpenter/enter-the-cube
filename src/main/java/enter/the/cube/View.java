@@ -449,7 +449,7 @@ public final class View implements GLEventListener {
 		gl.glTranslated(-x - w/2, -y - l/2, -z);
 
 
-		gl.glColor3f(1, 1, 1);
+		gl.glColor3f(.1f, .1f, .1f);
 		gl.glBegin(GL2.GL_QUADS);
 		// bottom
 		gl.glVertex3d(x, y, z);
@@ -538,7 +538,7 @@ public final class View implements GLEventListener {
 				for (int k : j) {
 					if(k==1) {
 						drawCube(gl,x,y,z,100);
-						/* test code, remove this line:*/ model.level = 2; model.skewed=true;
+						///* test code, remove this line:*/ model.level = 2; model.skewed=true;
 						if(model.level==2) {
 							Point3D pull = new Point3D(x+50,y+50,z+50);
 							pull.subtract(model.playerLocation);
