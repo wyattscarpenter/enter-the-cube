@@ -33,11 +33,17 @@ public final class KeyHandler extends KeyAdapter {
 			model.goBack();
 			break;
 		case KeyEvent.VK_TAB:
-			model.skewed = !model.skewed;
-			model.viewWalls = true;
+			// on tab switch between 2D and 3D. only available for plane maze
+			if(model.level == 1) {
+				model.skewed = !model.skewed;
+				model.viewWalls = true;				
+			}
+
 			break;
 		case KeyEvent.VK_C:
-			model.viewWalls = !model.viewWalls;
+			// on c switch between colored and invisible walls. only available in 2D.
+			if(!model.skewed)
+				model.viewWalls = !model.viewWalls;
 			break;
 		case KeyEvent.VK_SHIFT:
 			model.sprint();

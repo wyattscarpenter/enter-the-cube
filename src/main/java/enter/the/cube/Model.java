@@ -197,6 +197,7 @@ public final class Model {
 	public void playerReachGoal(double x, double y) {
 		if (level == 1 && x >= 345 && x <= 355 && y >= 370 && y <= 380) {
 			playerLocation.set(level2Start);
+			skewed = true;
 			level = 2;
 		} else {
 			if (level == 2 && playerLocation.closeEnough(floatingPlaneLocation)) {

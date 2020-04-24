@@ -133,9 +133,7 @@ public final class View implements GLEventListener {
 		gl.glMatrixMode(GL2.GL_PROJECTION); // Prepare for matrix xform
 		gl.glLoadIdentity(); // Set to identity matrix
 		if (model.skewed) {
-			w = 700;
-
-
+			
 			// enable lighting
 			gl.glEnable( GLLightingFunc.GL_LIGHTING );
 			gl.glEnable( GLLightingFunc.GL_LIGHT0 );
@@ -147,34 +145,55 @@ public final class View implements GLEventListener {
 			gl.glColorMaterial(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT_AND_DIFFUSE);
 			gl.glEnable(GLLightingFunc.GL_COLOR_MATERIAL);
 
+			if(model.level == 1) {
 
-			// set the color for the flashlight
-			float[] ambient = {.2f, .2f, .2f, .4f};
-			float[] diffuse = {.2f, .2f, .2f, 1f};
-			float[] specular = {0f, 1f, 1f, 1f};
 
-			gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_AMBIENT, ambient, 0);
-			gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_DIFFUSE, diffuse, 0);
-			gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPECULAR, specular, 0);
+				// set the color for the flashlight
+				float[] ambient = {.6f, .6f, .6f, 1f};
+				float[] diffuse = {.6f, .6f, .6f, 1f};
+				float[] specular = {1f, 1f, 1f, 1f};
 
-			// set the position of the flashlight to be at the player's eye
-			gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_POSITION, FloatBuffer.wrap(new float[]{
-					(float) model.playerLocation.x,
-					(float) model.playerLocation.y,
-					(float) model.playerLocation.z,
-					1f}));
-			// set the direction of the flashlight to be the direction the player is facing
-			gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{
-					(float) model.lookPoint.x,
-					(float) model.lookPoint.y,
-					(float) model.lookPoint.z}));
-			// set attributes of the flashlight
-			gl.glLightf(GLLightingFunc.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 50.0f);
-			gl.glLightf(GLLightingFunc.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 30.0f);
-			gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_CONSTANT_ATTENUATION, .3f);
-			//	        gl.glLightf(gl.GL_LIGHT0, GL2.GL_LINEAR_ATTENUATION, .01f);
-			//	        //gl.glLightf(gl.GL_LIGHT0, GL2.GL_QUADRATIC_ATTENUATION, .5f);
-			//
+				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_AMBIENT, ambient, 0);
+				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_DIFFUSE, diffuse, 0);
+				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPECULAR, specular, 0);
+
+				// set the position of the flashlight to be at the player's eye
+				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_POSITION, FloatBuffer.wrap(new float[]{
+						(float) model.playerLocation.x,
+						(float) model.playerLocation.y,
+						(float) model.playerLocation.z,
+						1f}));
+				// set the direction of the flashlight to be the direction the player is facing
+				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{
+						(float) model.lookPoint.x,
+						(float) model.lookPoint.y,
+						(float) model.lookPoint.z}));
+				// create the spotlight effect to make light function as a flashlight.
+				gl.glLightf(GLLightingFunc.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 20.0f);
+				gl.glLightf(GLLightingFunc.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 45.0f);
+				// make it so the light dims the further away it gets. 
+				gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_CONSTANT_ATTENUATION, .01f);
+				gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_LINEAR_ATTENUATION, .01f);
+				
+			} else {
+
+				// set the color for the flashlight
+				float[] ambient = {.6f, .6f, .6f, 1f};
+				float[] diffuse = {.6f, .6f, .6f, 1f};
+				float[] specular = {1f, 1f, 1f, 1f};
+
+				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_AMBIENT, ambient, 0);
+				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_DIFFUSE, diffuse, 0);
+				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPECULAR, specular, 0);
+
+				// set the position of the light to be at the center of the cube.
+				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_POSITION, FloatBuffer.wrap(new float[]{1500f,1500f,1500f,1f}));
+
+				// set attenuation of the light so doesn't fade away to quickly.
+				gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_LINEAR_ATTENUATION, .01f);
+
+			}
+
 
 
 			//set up the camera and position to accommodate 3D
@@ -206,7 +225,7 @@ public final class View implements GLEventListener {
 	// Private Methods (Scene)
 	//**********************************************************************
 	private void drawFloors(GL2 gl) {
-		gl.glColor3f(.3f, .3f, .3f);
+		gl.glColor3f(.1f, .1f, .1f);
 
 		drawFloor(gl, 50, 75, 600, 600);
 		drawFloor(gl, 310, 35, 80, 40);
@@ -232,7 +251,7 @@ public final class View implements GLEventListener {
 	private void drawWalls(GL2 gl) {
 		// draw regular walls
 		if(model.viewWalls) {
-			gl.glColor3f(0, 1, 0);
+			gl.glColor3f(0, .3f, 0);
 		} else {
 			gl.glColor3f(0, 0, 0);
 		}
@@ -361,7 +380,7 @@ public final class View implements GLEventListener {
 	private void drawCube(GL2 gl, double x, double y, double z) { //draw a unit cube (x,y,z) to (x+1,y+1,z+1)
 		double l = 100;
 		double w = 100;
-		gl.glColor3f(1, 1, 1);
+		gl.glColor3f(1f, 1f, 1f);
 		gl.glBegin(GL2.GL_QUADS);
 		// bottom
 		gl.glVertex3d(x, y, z);
