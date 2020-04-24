@@ -30,10 +30,13 @@ public final class Model {
 	public Point3D up  = new Point3D(); //just a convenience for gravityVector.unit().multiply(-1))
 
 	public Point3D floatingPlaneLocation = new Point3D(200,200,200);
+	public Point3D floatingCubeLocation = new Point3D(345, 370,10);
 	public Point3D cubeCubeLocation = new Point3D(1000,1000,1000);
 
 	private Point3D level1Start = new Point3D(350, 75, 0);
 	private Point3D level2Start = new Point3D(1200, 1200, 1200);
+
+	public double masterWallSpin = 0;
 
 	public Model(View view) {
 		this.view = view;
@@ -56,6 +59,14 @@ public final class Model {
 	public boolean freeLocation(double x, double y, double z) {
 		if(level==1) {
 			if(z<10) {return false;} //floor
+			if(x >= 350 && x <= 350+10 && y >= 100 && y <= 100+10) { //in special wall
+				if (masterWallSpin != 0) {
+					return true;
+				} else {
+					masterWallSpin = 1;
+					return false;
+				}
+			}
 			for (int i = 0; i < walls.size(); ++i) {
 				if ((x >= walls.get(i)[0] && x <= walls.get(i)[1]) && (y >= walls.get(i)[2] && y <= walls.get(i)[3])) {
 					return false;
@@ -113,6 +124,7 @@ public final class Model {
 	}
 
 	public boolean movePlayer(double x, double y, double z) {
+		//System.out.println(walls.size());//we never clear this list, and we keep adding to it...
 		if(freeLocation(playerLocation.x + x, playerLocation.y + y, playerLocation.z+z)) {
 			playerLocation.add(x,y,z);
 			playerReachGoal(playerLocation.x, playerLocation.y);

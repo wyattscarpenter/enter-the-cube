@@ -30,6 +30,10 @@ public final class View implements GLEventListener {
 
 	private double wallHeight = 50;
 
+	private boolean wallsIn;
+
+	private int counter;
+
 	public View(GLJPanel canvas) {
 		this.canvas = canvas;
 		canvas.setFocusTraversalKeysEnabled(false); //let tab be a game control
@@ -99,6 +103,7 @@ public final class View implements GLEventListener {
 
 		setProjection(gl);
 		drawWalls(gl);
+		wallsIn=true;
 		drawGoal(gl, 350, 375);
 
 		// only draw floor in 3d. only draw player location in 2d.
@@ -108,10 +113,11 @@ public final class View implements GLEventListener {
 			drawPlayer(gl);
 		}
 
-		//drawAxes(gl); //ruins program
+		drawAxes(gl); //ruins program
 
-		drawCube(gl,100,100,100);
+		drawCube(gl,100,100,100,100);
 		drawFloatingPlane(gl,model.floatingPlaneLocation.x,model.floatingPlaneLocation.y,model.floatingPlaneLocation.z);
+		drawFloatingCube(gl,model.floatingCubeLocation.x,model.floatingCubeLocation.y,model.floatingCubeLocation.z, 10);
 		drawCubeCube(gl);
 
 		// Draw the scene
@@ -136,7 +142,6 @@ public final class View implements GLEventListener {
 			
 			// enable lighting
 			gl.glEnable( GLLightingFunc.GL_LIGHTING );
-			gl.glEnable( GLLightingFunc.GL_LIGHT0 );
 			gl.glEnable( GL.GL_DEPTH_TEST );
 			//gl.glShadeModel(gl.GL_FLAT);
 
@@ -147,6 +152,7 @@ public final class View implements GLEventListener {
 
 			if(model.level == 1) {
 
+				gl.glEnable( GLLightingFunc.GL_LIGHT0 );
 
 				// set the color for the flashlight
 				float[] ambient = {.6f, .6f, .6f, 1f};
@@ -176,21 +182,22 @@ public final class View implements GLEventListener {
 				gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_LINEAR_ATTENUATION, .01f);
 				
 			} else {
+				gl.glEnable( GLLightingFunc.GL_LIGHT1 );
 
 				// set the color for the flashlight
 				float[] ambient = {.6f, .6f, .6f, 1f};
 				float[] diffuse = {.6f, .6f, .6f, 1f};
 				float[] specular = {1f, 1f, 1f, 1f};
 
-				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_AMBIENT, ambient, 0);
-				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_DIFFUSE, diffuse, 0);
-				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPECULAR, specular, 0);
+				gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_AMBIENT, ambient, 0);
+				gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_DIFFUSE, diffuse, 0);
+				gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_SPECULAR, specular, 0);
 
 				// set the position of the light to be at the center of the cube.
-				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_POSITION, FloatBuffer.wrap(new float[]{1500f,1500f,1500f,1f}));
+				gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_POSITION, FloatBuffer.wrap(new float[]{1500f,1500f,1500f,1f}));
 
 				// set attenuation of the light so doesn't fade away to quickly.
-				gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_LINEAR_ATTENUATION, .01f);
+				gl.glLightf(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_LINEAR_ATTENUATION, .01f);
 
 			}
 
@@ -210,7 +217,7 @@ public final class View implements GLEventListener {
 					model.playerLocation.x + model.lookPoint.x, model.playerLocation.y + model.lookPoint.y, model.playerLocation.z + model.lookPoint.z,
 					//what is up but "not down"?
 					model.up.x, model.up.y, model.up.z);
-			System.out.println(model.up);
+			//System.out.println(model.up);
 		} else {
 			gl.glDisable( GL2.GL_LIGHTING );
 			//2D translate and scale
@@ -300,7 +307,21 @@ public final class View implements GLEventListener {
 		}
 		// set the emission color of the walls to light blue to make it seem as though the walls are glowing.
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_EMISSION, FloatBuffer.wrap(new float[] {.5f,.75f,1f,1f}));
-		drawWall(gl, 350, 100, 10, 10);
+		if(model.masterWallSpin != 0 && model.masterWallSpin <= 100) {
+			gl.glPushMatrix();
+			gl.glTranslated(355, 105, 0);
+			gl.glRotated(model.masterWallSpin++, 0, 0, 1);
+			gl.glTranslated(-355, -105, 0);
+			//gl.glScaled(model.masterWallSpin,model.masterWallSpin,model.masterWallSpin); //doesn't work?
+			//drawWall(gl, 350, 100, 10, 10);
+			wallHeight+=model.masterWallSpin;
+			drawWall(gl, 350-model.masterWallSpin, 100-model.masterWallSpin, 10+model.masterWallSpin*2, 10+model.masterWallSpin*2);
+			wallHeight-=model.masterWallSpin;
+
+			gl.glPopMatrix();
+		} else if (model.masterWallSpin <= 100) {
+			drawWall(gl, 350, 100, 10, 10);
+		}
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_EMISSION, FloatBuffer.wrap(new float[] {0f,0f,0f,1f}));
 
 	}
@@ -374,13 +395,13 @@ public final class View implements GLEventListener {
 
 		gl.glEnd();
 
-		model.addWall(x, y, w, l);
+		if(!wallsIn){model.addWall(x, y, w, l);}
 	}
 
-	private void drawCube(GL2 gl, double x, double y, double z) { //draw a unit cube (x,y,z) to (x+1,y+1,z+1)
-		double l = 100;
-		double w = 100;
-		gl.glColor3f(1f, 1f, 1f);
+
+	private void drawCube(GL2 gl, double x, double y, double z, double l) { //draw l-long cube (x,y,z) to (x+l,y+l,z+l)
+		double w = l;
+		gl.glColor3f(1, 1, 1);
 		gl.glBegin(GL2.GL_QUADS);
 		// bottom
 		gl.glVertex3d(x, y, z);
@@ -419,9 +440,14 @@ public final class View implements GLEventListener {
 	}
 
 	private void drawFloatingPlane(GL2 gl, double x, double y, double z) {
-		//TODO: make plane float cool
 		double l = 10;
 		double w = 10;
+		gl.glPushMatrix();
+		gl.glTranslated(x+ w/2, y + l/2, z);
+		gl.glRotated(counter++, 0, 0, 1);
+		gl.glTranslated(-x - w/2, -y - l/2, -z);
+
+
 		gl.glColor3f(1, 1, 1);
 		gl.glBegin(GL2.GL_QUADS);
 		// bottom
@@ -430,11 +456,25 @@ public final class View implements GLEventListener {
 		gl.glVertex3d(x + w, y + l, z);
 		gl.glVertex3d(x, y + l, z);
 		gl.glEnd();
+
+		gl.glPopMatrix();
 	}
 
-	@SuppressWarnings("unused")
+	private void drawFloatingCube(GL2 gl, double x, double y, double z, double l) {
+		double w = l;
+		gl.glPushMatrix();
+		gl.glTranslated(x+ w/2, y + l/2, z);
+		gl.glRotated(counter++, 0, 0, 1);
+		gl.glTranslated(-x - w/2, -y - l/2, -z);
+
+		drawCube(gl, x,y,z,l);
+
+		gl.glPopMatrix();
+
+	}
+
 	private void drawAxes(GL2 gl) {
-		gl.glBegin(GL2.GL_LINE);
+		gl.glBegin(GL2.GL_LINES);
 		gl.glColor3f(255, 0, 0);
 		gl.glVertex2d(0, 0);
 		gl.glVertex2d(1000, 0);
@@ -496,7 +536,7 @@ public final class View implements GLEventListener {
 			for (int[] j : i) {
 				for (int k : j) {
 					if(k==1) {
-						drawCube(gl,x,y,z);
+						drawCube(gl,x,y,z,100);
 						///* test code, remove this line:*/ model.level = 2;
 						if(model.level==2) {
 							Point3D pull = new Point3D(x+50,y+50,z+50);
