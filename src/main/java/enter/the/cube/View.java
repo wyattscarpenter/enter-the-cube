@@ -191,7 +191,7 @@ public final class View implements GLEventListener {
 					model.playerLocation.x + model.lookPoint.x, model.playerLocation.y + model.lookPoint.y, model.playerLocation.z + model.lookPoint.z,
 					//what is up but "not down"?
 					model.up.x, model.up.y, model.up.z);
-			System.out.println(model.up);
+			//System.out.println(model.up);
 		} else {
 			gl.glDisable( GL2.GL_LIGHTING );
 			//2D translate and scale
@@ -281,7 +281,15 @@ public final class View implements GLEventListener {
 		}
 		// set the emission color of the walls to light blue to make it seem as though the walls are glowing.
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_EMISSION, FloatBuffer.wrap(new float[] {.5f,.75f,1f,1f}));
-		drawWall(gl, 350, 100, 10, 10);
+		if(model.masterWallSpin != 0) {
+			gl.glPushMatrix();
+			gl.glRotated(model.masterWallSpin++, 355, 105, 1000);
+			//gl.glScaled(model.masterWallSpin,model.masterWallSpin,model.masterWallSpin); //doesn't work?
+			drawWall(gl, 350-model.masterWallSpin, 100-model.masterWallSpin, 10+model.masterWallSpin, 10+model.masterWallSpin);
+			gl.glPopMatrix();
+		} else {
+			drawWall(gl, 350, 100, 10, 10);
+		}
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_EMISSION, FloatBuffer.wrap(new float[] {0f,0f,0f,1f}));
 
 	}
