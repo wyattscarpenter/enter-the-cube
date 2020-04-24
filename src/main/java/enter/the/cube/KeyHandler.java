@@ -45,6 +45,10 @@ public final class KeyHandler extends KeyAdapter {
 			if(!model.skewed)
 				model.viewWalls = !model.viewWalls;
 			break;
+		case KeyEvent.VK_F:
+			// on f cycle to next flashlight color
+			model.nextFlashlightColor();
+			break;
 		case KeyEvent.VK_SHIFT:
 			model.sprint();
 			break;

@@ -102,9 +102,14 @@ public final class View implements GLEventListener {
 		if(model.viewWalls){gl.glClear(GL2.GL_COLOR_BUFFER_BIT|GL2.GL_DEPTH_BUFFER_BIT);}
 
 		setProjection(gl);
+		// create plain maze.
+		// draw fake wall that spin out on touch.
+		drawSpecialWall(gl, 557.5, 385, 20, 52.5);
+		// draw regular walls
 		drawWalls(gl);
-		wallsIn=true; //this is a dumb pointless stopgap, refactor the walls to be in model to start with
-		drawGoal(gl, 350, 375);
+		wallsIn=true; 
+		// draw a star where the goal is
+		drawGoal(gl, model.floatingCubeLocation.x + 5,model.floatingCubeLocation.y + 5);
 
 		// only draw floor in 3d. only draw player location in 2d.
 		if(model.skewed) {
@@ -112,17 +117,14 @@ public final class View implements GLEventListener {
 		} else {
 			drawPlayer(gl);
 		}
-
-		drawAxes(gl); //ruins program
-
+		
+		// draw a cube and a floating pane in the sky. scenery. 
 		drawCube(gl,100,100,100,100);
 		drawFloatingPlane(gl,model.floatingPlaneLocation.x,model.floatingPlaneLocation.y,model.floatingPlaneLocation.z);
+		// draw a spinning floating cube at the goal location.
 		drawFloatingCube(gl,model.floatingCubeLocation.x,model.floatingCubeLocation.y,model.floatingCubeLocation.z, 10);
-		drawCube(gl,model.playerLocation.x+model.lookPoint.x,model.playerLocation.y+model.lookPoint.y,model.playerLocation.z+model.lookPoint.z,1);
+		// draw the cube maze. This the cube also appears in the sky in the plane maze. 
 		drawCubeCube(gl);
-
-		// Draw the scene
-		drawMode(drawable); // Draw mode text
 
 		gl.glFlush(); // Finish and display
 	}
@@ -152,35 +154,42 @@ public final class View implements GLEventListener {
 			gl.glEnable(GLLightingFunc.GL_COLOR_MATERIAL);
 
 			if(model.level == 1) {
+				
+				float[] lightColor = model.getFlashlightColor();
+				if(lightColor == null) {
+					gl.glDisable(GLLightingFunc.GL_LIGHT0);
+				} else {
+					gl.glEnable( GLLightingFunc.GL_LIGHT0 );
+					// set the color for the flashlight
+					float[] ambient = {lightColor[0] * .6f, lightColor[1] * .6f, lightColor[2] * .6f, 1f};
+					float[] diffuse = {lightColor[0] * .6f, lightColor[1] * .6f, lightColor[2] * .6f, 1f};
+					float[] specular = {lightColor[0], lightColor[1], lightColor[2], 1f};
 
-				gl.glEnable( GLLightingFunc.GL_LIGHT0 );
+					gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_AMBIENT, ambient, 0);
+					gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_DIFFUSE, diffuse, 0);
+					gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPECULAR, specular, 0);
 
-				// set the color for the flashlight
-				float[] ambient = {.6f, .6f, .6f, 1f};
-				float[] diffuse = {.6f, .6f, .6f, 1f};
-				float[] specular = {1f, 1f, 1f, 1f};
+					// set the position of the flashlight to be at the player's eye
+					gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_POSITION, FloatBuffer.wrap(new float[]{
+							(float) model.playerLocation.x,
+							(float) model.playerLocation.y,
+							(float) model.playerLocation.z,
+							1f}));
+					// set the direction of the flashlight to be the direction the player is facing
+					gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{
+							(float) model.lookPoint.x,
+							(float) model.lookPoint.y,
+							(float) model.lookPoint.z}));
+					// create the spotlight effect to make light function as a flashlight.
+					gl.glLightf(GLLightingFunc.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 20.0f);
+					gl.glLightf(GLLightingFunc.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 45.0f);
+					// make it so the light dims the further away it gets.
+					gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_CONSTANT_ATTENUATION, .01f);
+					gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_LINEAR_ATTENUATION, .01f);
+				} 
 
-				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_AMBIENT, ambient, 0);
-				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_DIFFUSE, diffuse, 0);
-				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPECULAR, specular, 0);
+				
 
-				// set the position of the flashlight to be at the player's eye
-				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_POSITION, FloatBuffer.wrap(new float[]{
-						(float) model.playerLocation.x,
-						(float) model.playerLocation.y,
-						(float) model.playerLocation.z,
-						1f}));
-				// set the direction of the flashlight to be the direction the player is facing
-				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{
-						(float) model.lookPoint.x,
-						(float) model.lookPoint.y,
-						(float) model.lookPoint.z}));
-				// create the spotlight effect to make light function as a flashlight.
-				gl.glLightf(GLLightingFunc.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 20.0f);
-				gl.glLightf(GLLightingFunc.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 45.0f);
-				// make it so the light dims the further away it gets.
-				gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_CONSTANT_ATTENUATION, .01f);
-				gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_LINEAR_ATTENUATION, .01f);
 
 			} else {
 				gl.glEnable( GLLightingFunc.GL_LIGHT1 );
@@ -233,7 +242,7 @@ public final class View implements GLEventListener {
 	// Private Methods (Scene)
 	//**********************************************************************
 	private void drawFloors(GL2 gl) {
-		gl.glColor3f(.1f, .1f, .1f);
+		gl.glColor3f(.05f, .05f, .05f);
 
 		drawFloor(gl, 50, 75, 600, 600);
 		drawFloor(gl, 310, 35, 80, 40);
@@ -259,7 +268,7 @@ public final class View implements GLEventListener {
 	private void drawWalls(GL2 gl) {
 		// draw regular walls
 		if(model.viewWalls) {
-			gl.glColor3f(0, .3f, 0);
+			gl.glColor3f(.2f, .2f, .2f);
 		} else {
 			gl.glColor3f(0, 0, 0);
 		}
@@ -298,33 +307,40 @@ public final class View implements GLEventListener {
 		drawWall(gl, 122.5, 147.5, 72.5, 20);
 		drawWall(gl, 122.5, 167.5, 20, 145);
 
-		// draw special walls
-		if(model.viewWalls) {
+
+	}
+	
+	private void drawSpecialWall(GL2 gl, double x, double y, double w, double l) {
+
+		// draw special walls. appears as a normal wall unless second light is used. 
+		// this makes the light glow light blue.
+		// when the wall is touched make the wall spin and expand.
+		if(!model.viewWalls) {
+			gl.glColor3f(0, 0, 0);
+		} else {
+			// if flashlight color is blue make the special wall glow light blue.
+			if(model.getFlashlightCount() == 1) {
+				// set the emission color of the walls to light blue to make it seem as though the walls are glowing.
+				gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_EMISSION, FloatBuffer.wrap(new float[] {.5f,.75f,1f,1f}));	
+			}
 			// set the color to the wall so that when combined with emission it will be white.
 			// this is so that the wall appears white when a flashlight is shined on it.
-			gl.glColor3f(.5f, .25f, 0f);
-		} else {
-			gl.glColor3f(0, 0, 0);
+			gl.glColor3f(.2f, .2f, .2f);
+
 		}
-		// set the emission color of the walls to light blue to make it seem as though the walls are glowing.
-		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_EMISSION, FloatBuffer.wrap(new float[] {.5f,.75f,1f,1f}));
 		if(model.masterWallSpin != 0 && model.masterWallSpin <= 100) {
 			gl.glPushMatrix();
-			gl.glTranslated(355, 105, 0);
+			gl.glTranslated(x + w/2, y + l/2, 0);
 			gl.glRotated(model.masterWallSpin++, 0, 0, 1);
-			gl.glTranslated(-355, -105, 0);
-			//gl.glScaled(model.masterWallSpin,model.masterWallSpin,model.masterWallSpin); //doesn't work?
-			//drawWall(gl, 350, 100, 10, 10);
-			wallHeight+=model.masterWallSpin;
-			drawWall(gl, 350-model.masterWallSpin, 100-model.masterWallSpin, 10+model.masterWallSpin*2, 10+model.masterWallSpin*2);
-			wallHeight-=model.masterWallSpin;
+			gl.glScaled(model.masterWallSpin,model.masterWallSpin,model.masterWallSpin); 
+			gl.glTranslated(-(x + w/2), -(y + l/2), 0);
+			drawWall(gl, x, y, w, l);
 
 			gl.glPopMatrix();
 		} else if (model.masterWallSpin <= 100) {
-			drawWall(gl, 350, 100, 10, 10);
+			drawWall(gl, x, y, w, l);
 		}
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_EMISSION, FloatBuffer.wrap(new float[] {0f,0f,0f,1f}));
-
 	}
 
 	private void drawWall(GL2 gl, double x, double y, double w, double l) {
@@ -333,22 +349,24 @@ public final class View implements GLEventListener {
 		// create rectangular prism with the defined dimensions.
 		// make each face of the prism using many rectanges. this is so
 		//	vertex shading for the flashlight in the game will work effectively.
-		double wSplit = w / Math.floor(w / 2);
-		double lSplit = l / Math.floor(l / 2);
-		double hSplit = wallHeight / Math.floor(wallHeight / 2);
+		double wSplit = 1;
+		double lSplit = 1;
+		double hSplit = 1;
 
+		double i,j;
 		// bottom
-		for(double i = x; i + wSplit <= x + w ; i += wSplit) {
-			for(double j = y; j + lSplit <= y + l; j += lSplit) {
+		for(i = x; i + wSplit <= x + w ; i += wSplit) {
+			for(j = y; j + lSplit <= y + l; j += lSplit) {
 				gl.glVertex3d(i, j, 0);
 				gl.glVertex3d(i + wSplit, j, 0);
 				gl.glVertex3d(i + wSplit, j + lSplit, 0);
 				gl.glVertex3d(i, j + lSplit, 0);
 			}
+
 		}
 		// top
-		for(double i = x; i + wSplit <= x + w ; i += wSplit) {
-			for(double j = y; j + lSplit <= y + l; j += lSplit) {
+		for(i = x; i + wSplit <= x + w ; i += wSplit) {
+			for(j = y; j + lSplit <= y + l; j += lSplit) {
 				gl.glVertex3d(i, j, wallHeight);
 				gl.glVertex3d(i + wSplit, j, wallHeight);
 				gl.glVertex3d(i + wSplit, j + lSplit, wallHeight);
@@ -357,8 +375,8 @@ public final class View implements GLEventListener {
 		}
 
 		// left
-		for(double i = y; i + lSplit <= y + l ; i += lSplit) {
-			for(double j = 0; j + hSplit <= wallHeight; j += hSplit) {
+		for(i = y; i + lSplit <= y + l ; i += lSplit) {
+			for(j = 0; j + hSplit <= wallHeight; j += hSplit) {
 				gl.glVertex3d(x, i, j);
 				gl.glVertex3d(x, i + lSplit, j);
 				gl.glVertex3d(x, i + lSplit, j + hSplit);
@@ -366,8 +384,8 @@ public final class View implements GLEventListener {
 			}
 		}
 		// right
-		for(double i = y; i + lSplit <= y + l ; i += lSplit) {
-			for(double j = 0; j + hSplit <= wallHeight; j += hSplit) {
+		for(i = y; i + lSplit <= y + l ; i += lSplit) {
+			for(j = 0; j + hSplit <= wallHeight; j += hSplit) {
 				gl.glVertex3d(x + w, i, j);
 				gl.glVertex3d(x + w, i + lSplit, j);
 				gl.glVertex3d(x + w, i + lSplit, j + hSplit);
@@ -376,8 +394,8 @@ public final class View implements GLEventListener {
 		}
 
 		// front
-		for(double i = x; i + wSplit <= x + w ; i += wSplit) {
-			for(double j = 0; j + hSplit <= wallHeight; j += hSplit) {
+		for(i = x; i + wSplit <= x + w ; i += wSplit) {
+			for(j = 0; j + hSplit <= wallHeight; j += hSplit) {
 				gl.glVertex3d(i, y, j);
 				gl.glVertex3d(i + wSplit, y, j);
 				gl.glVertex3d(i + wSplit, y, j + hSplit);
@@ -385,8 +403,8 @@ public final class View implements GLEventListener {
 			}
 		}
 		// back
-		for(double i = x; i + wSplit <= x + w ; i += wSplit) {
-			for(double j = 0; j + hSplit <= wallHeight; j += hSplit) {
+		for(i = x; i + wSplit <= x + w ; i += wSplit) {
+			for(j = 0; j + hSplit <= wallHeight; j += hSplit) {
 				gl.glVertex3d(i, y + l, j);
 				gl.glVertex3d(i + wSplit, y + l, j);
 				gl.glVertex3d(i + wSplit, y + l, j + hSplit);
@@ -400,6 +418,7 @@ public final class View implements GLEventListener {
 	}
 
 
+	
 	private void drawCube(GL2 gl, double x, double y, double z, double l) { //draw l-long cube (x,y,z) to (x+l,y+l,z+l)
 		double w = l;
 		gl.glColor3f(1, 1, 1);
@@ -474,16 +493,7 @@ public final class View implements GLEventListener {
 
 	}
 
-	private void drawAxes(GL2 gl) {
-		gl.glBegin(GL2.GL_LINES);
-		gl.glColor3f(255, 0, 0);
-		gl.glVertex2d(0, 0);
-		gl.glVertex2d(1000, 0);
-		gl.glColor3f(0, 255, 0);
-		gl.glVertex2d(0, 0);
-		gl.glVertex2d(0, 1000);
-		gl.glEnd();
-	}
+
 
 	private void drawPlayer(GL2 gl) {
 		Point2D.Double p = new Point2D.Double(model.playerLocation.x, model.playerLocation.y);
@@ -562,22 +572,4 @@ public final class View implements GLEventListener {
 		//model.lookPoint.multiply(model.gravityVector.unit()); //hmm
 	}
 
-	private void drawMode(GLAutoDrawable drawable) {
-		GL2 gl = drawable.getGL().getGL2();
-		double[] p = Utilities.mapViewToScene(gl, 0.5 * w, 0.5 * h, 0.0);
-		double[] q = Utilities.mapSceneToView(gl, 0.0, 0.0, 0.0);
-		String svc = ("View center in scene: [" + p[0] + ", " + p[1] + "]");
-		String sso = ("Scene origin in view: [" + q[0] + ", " + q[1] + "]");
-
-		renderer.beginRendering(w, h);
-
-		// Draw all text in yellow
-		renderer.setColor(1.0f, 1.0f, 0.0f, 1.0f);
-		renderer.draw("Pointer at (" + model.cursor.x + "," + model.cursor.y + ")", 2, 2);
-
-		renderer.draw(svc, 2, 16);
-		renderer.draw(sso, 2, 30);
-
-		renderer.endRendering();
-	}
 }

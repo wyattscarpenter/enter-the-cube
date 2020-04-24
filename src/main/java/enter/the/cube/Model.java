@@ -40,6 +40,8 @@ public final class Model {
 
 	public Point3D cylinderLookPoint = new Point3D();
 	private Point3D playerPlaneLookPoint  = new Point3D();
+	
+	private int flashlightColor = 0; 
 
 	public Model(View view) {
 		this.view = view;
@@ -62,7 +64,7 @@ public final class Model {
 	public boolean freeLocation(double x, double y, double z) {
 		if(level==1) {
 			if(z<10) {gravityVector.set(gravityVector.unit()); return false;} //floor
-			if(x >= 350 && x <= 350+10 && y >= 100 && y <= 100+10) { //in special wall
+			if(x >= 557.5 && x <= 557.5+20 && y >= 385 && y <= 385+52.5) { //in special wall
 				if (masterWallSpin != 0) {
 					return true;
 				} else {
@@ -96,6 +98,24 @@ public final class Model {
 			}
 			return true;
 		}
+	}
+	
+	public float[] getFlashlightColor() {
+		if(flashlightColor == 0) {
+			return new float[] {1f,1f,1f};
+		} else if(flashlightColor == 1) {
+			return new float[] {0f,0f,1f};
+		} else {
+			return null;
+		}
+	}
+	
+	public int getFlashlightCount() {
+		return flashlightColor;
+	}
+	
+	public void nextFlashlightColor() {
+		flashlightColor = (flashlightColor + 1) % 3;
 	}
 
 	public void setOriginInSceneCoordinates(Point2D.Double q) {
@@ -234,7 +254,7 @@ public final class Model {
 			Point3D u2 = up.perp();
 			Point3D v2 = up.cross(u2);
 			playerPlaneLookPoint.set(u2.multiply(cylinderLookPoint.x).add(v2.multiply(cylinderLookPoint.y)).add(up)); //have to go up a lil bit for slopes?
-			System.out.println(lookPoint);
+			//System.out.println(lookPoint);
 	}
 
 	public void sprint() {
@@ -253,7 +273,7 @@ public final class Model {
 		movePlayer(jumpUp.x, jumpUp.y, jumpUp.z);
 		//I'm not even going to stop you from multi-jumping. You do you.
 		//Update: turns out physics prevents you from multijumping, since the gravity mounts unavoidably.
-		System.out.println("up: "+up+" perp: "+up.perp());
+		//System.out.println("up: "+up+" perp: "+up.perp());
 	}
 
 	public int[][][] cubeCube = {
