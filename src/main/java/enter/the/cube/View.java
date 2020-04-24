@@ -30,6 +30,8 @@ public final class View implements GLEventListener {
 
 	private double wallHeight = 50;
 
+	private boolean wallsIn;
+
 	public View(GLJPanel canvas) {
 		this.canvas = canvas;
 		canvas.setFocusTraversalKeysEnabled(false); //let tab be a game control
@@ -99,6 +101,7 @@ public final class View implements GLEventListener {
 
 		setProjection(gl);
 		drawWalls(gl);
+		wallsIn=true;
 		drawGoal(gl, 350, 375);
 
 		// only draw floor in 3d. only draw player location in 2d.
@@ -281,7 +284,7 @@ public final class View implements GLEventListener {
 		}
 		// set the emission color of the walls to light blue to make it seem as though the walls are glowing.
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_EMISSION, FloatBuffer.wrap(new float[] {.5f,.75f,1f,1f}));
-		if(model.masterWallSpin != 0) {
+		if(model.masterWallSpin != 0 && model.masterWallSpin <= 100) {
 			gl.glPushMatrix();
 			gl.glTranslated(355, 105, 0);
 			gl.glRotated(model.masterWallSpin++, 0, 0, 1);
@@ -293,7 +296,7 @@ public final class View implements GLEventListener {
 			wallHeight-=model.masterWallSpin;
 
 			gl.glPopMatrix();
-		} else {
+		} else if (model.masterWallSpin <= 100) {
 			drawWall(gl, 350, 100, 10, 10);
 		}
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_EMISSION, FloatBuffer.wrap(new float[] {0f,0f,0f,1f}));
@@ -369,7 +372,7 @@ public final class View implements GLEventListener {
 
 		gl.glEnd();
 
-		model.addWall(x, y, w, l);
+		if(!wallsIn){model.addWall(x, y, w, l);}
 	}
 
 	private void drawCube(GL2 gl, double x, double y, double z) { //draw a unit cube (x,y,z) to (x+1,y+1,z+1)
