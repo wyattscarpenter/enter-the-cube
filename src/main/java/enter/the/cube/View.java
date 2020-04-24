@@ -283,9 +283,15 @@ public final class View implements GLEventListener {
 		gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_EMISSION, FloatBuffer.wrap(new float[] {.5f,.75f,1f,1f}));
 		if(model.masterWallSpin != 0) {
 			gl.glPushMatrix();
-			gl.glRotated(model.masterWallSpin++, 355, 105, 1000);
+			gl.glTranslated(355, 105, 0);
+			gl.glRotated(model.masterWallSpin++, 0, 0, 1);
+			gl.glTranslated(-355, -105, 0);
 			//gl.glScaled(model.masterWallSpin,model.masterWallSpin,model.masterWallSpin); //doesn't work?
-			drawWall(gl, 350-model.masterWallSpin, 100-model.masterWallSpin, 10+model.masterWallSpin, 10+model.masterWallSpin);
+			//drawWall(gl, 350, 100, 10, 10);
+			wallHeight+=model.masterWallSpin;
+			drawWall(gl, 350-model.masterWallSpin, 100-model.masterWallSpin, 10+model.masterWallSpin*2, 10+model.masterWallSpin*2);
+			wallHeight-=model.masterWallSpin;
+
 			gl.glPopMatrix();
 		} else {
 			drawWall(gl, 350, 100, 10, 10);
