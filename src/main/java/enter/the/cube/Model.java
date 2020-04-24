@@ -38,6 +38,9 @@ public final class Model {
 
 	public double masterWallSpin = 0;
 
+	public Point3D cylinderLookPoint = new Point3D();
+	private Point3D playerPlaneLookPoint  = new Point3D();
+
 	public Model(View view) {
 		this.view = view;
 
@@ -58,7 +61,7 @@ public final class Model {
 
 	public boolean freeLocation(double x, double y, double z) {
 		if(level==1) {
-			if(z<10) {return false;} //floor
+			if(z<10) {gravityVector.set(gravityVector.unit()); return false;} //floor
 			if(x >= 350 && x <= 350+10 && y >= 100 && y <= 100+10) { //in special wall
 				if (masterWallSpin != 0) {
 					return true;
@@ -69,7 +72,7 @@ public final class Model {
 			}
 			for (int i = 0; i < walls.size(); ++i) {
 				if ((x >= walls.get(i)[0] && x <= walls.get(i)[1]) && (y >= walls.get(i)[2] && y <= walls.get(i)[3])) {
-					return false;
+					gravityVector.set(gravityVector.unit()); return false;
 				}
 			}
 			return true;
@@ -81,7 +84,7 @@ public final class Model {
 				for (int[] j : i) {
 					for (int k : j) {
 						if(k==1 && x >= xcorner && x <= xcorner+100 && y >= ycorner && y <= ycorner+100 && z >= zcorner && z <= zcorner+100) {
-							return false;
+							gravityVector.set(gravityVector.unit()); return false;
 						}
 						xcorner+=100;
 					}
@@ -124,7 +127,6 @@ public final class Model {
 	}
 
 	public boolean movePlayer(double x, double y, double z) {
-		//System.out.println(walls.size());//we never clear this list, and we keep adding to it...
 		if(freeLocation(playerLocation.x + x, playerLocation.y + y, playerLocation.z+z)) {
 			playerLocation.add(x,y,z);
 			playerReachGoal(playerLocation.x, playerLocation.y);
@@ -174,8 +176,8 @@ public final class Model {
 
 	public void goLeft() {
 		if (skewed) {
-			// remember that the left perp of a vector <x,y> is <-y,x>
-			movePlayer(-lookPoint.y, lookPoint.x, 0);
+			Point3D l = playerPlaneLookPoint.leftPerp2D();
+			movePlayer(l.x, l.y, l.z);
 		} else {
 			movePlayer(-stepSize, 0, 0);
 		}
@@ -183,8 +185,8 @@ public final class Model {
 
 	public void goRight() {
 		if (skewed) {
-			// remember that the right perp of a vector <x,y> is <y,-x>
-			movePlayer(lookPoint.y, -lookPoint.x, 0);
+			Point3D r = playerPlaneLookPoint.rightPerp2D();
+			movePlayer(r.x, r.y, r.z);
 		} else {
 			movePlayer(stepSize, 0, 0);
 		}
@@ -192,7 +194,7 @@ public final class Model {
 
 	public void goForward() {
 		if (skewed) {
-			movePlayer(lookPoint.x, lookPoint.y, 0);
+			movePlayer(playerPlaneLookPoint.x, playerPlaneLookPoint.y, playerPlaneLookPoint.z);
 		} else {
 			movePlayer(0, stepSize, 0);
 		}
@@ -200,7 +202,7 @@ public final class Model {
 
 	public void goBack() {
 		if (skewed) {
-			movePlayer(-lookPoint.x, -lookPoint.y, 0);
+			movePlayer(-playerPlaneLookPoint.x, -playerPlaneLookPoint.y, playerPlaneLookPoint.z);
 		} else {
 			movePlayer(0, -stepSize, 0);
 		}
@@ -220,28 +222,38 @@ public final class Model {
 	}
 
 	public void mouselook(Point mousepoint) {
-		lookPoint.x = Math.cos((view.getWidth() - mousepoint.x) / (20 * Math.PI)) * stepSize;
-		lookPoint.y = Math.sin((view.getWidth() - mousepoint.x) / (20 * Math.PI)) * stepSize;
-		lookPoint.z = (5.0 - mousepoint.y / 60.0) * stepSize;
-		if(level==2) {
+		cylinderLookPoint.x = Math.cos((view.getWidth() - mousepoint.x) / (20 * Math.PI)) * stepSize;
+		cylinderLookPoint.y = Math.sin((view.getWidth() - mousepoint.x) / (20 * Math.PI)) * stepSize;
+		cylinderLookPoint.z = (5.0 - mousepoint.y / 60.0) * stepSize;
 			//we want to translate the lookpoint from gravity-dependent to world-coordinate
-			lookPoint.divide(up);
-		}
+			//first, get two arbitrary orthogonal vectors
+			Point3D n = new Point3D(up);
+			Point3D u = up.perp();
+			Point3D v = up.cross(u);
+			lookPoint.set(u.multiply(cylinderLookPoint.x).add(v.multiply(cylinderLookPoint.y)).add(n.multiply(cylinderLookPoint.z)));
+			Point3D u2 = up.perp();
+			Point3D v2 = up.cross(u2);
+			playerPlaneLookPoint.set(u2.multiply(cylinderLookPoint.x).add(v2.multiply(cylinderLookPoint.y)).add(up)); //have to go up a lil bit for slopes?
+			System.out.println(lookPoint);
 	}
 
 	public void sprint() {
 		stepSize *= 1.1;
-		System.out.println(stepSize);
+		//System.out.println(stepSize);
 	}
 
 	public void crouch() {
 		stepSize /= 1.1;
-		System.out.println(stepSize);
+		//System.out.println(stepSize);
 	}
 
 	public void jump() {
-		playerLocation.z+=stepSize;
+		Point3D jumpUp = new Point3D(up);
+		jumpUp.multiply(10);
+		movePlayer(jumpUp.x, jumpUp.y, jumpUp.z);
 		//I'm not even going to stop you from multi-jumping. You do you.
+		//Update: turns out physics prevents you from multijumping, since the gravity mounts unavoidably.
+		System.out.println("up: "+up+" perp: "+up.perp());
 	}
 
 	public int[][][] cubeCube = {
@@ -259,13 +271,24 @@ public final class Model {
 
 		{{1,1,1,1,1,1,1,1,1,1},
 		 {1,0,0,0,0,0,0,0,0,1},
+		 {1,0,0,0,1,0,1,1,0,1},
 		 {1,0,0,0,0,0,0,0,0,1},
+		 {1,0,1,1,0,1,0,1,0,1},
 		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
+		 {1,0,1,0,1,1,0,0,0,1},
+		 {1,0,1,0,0,0,0,1,0,1},
+		 {1,0,0,0,0,0,0,1,0,1},
+		 {1,1,1,1,1,1,1,1,1,1}},
+
+		{{1,1,1,1,1,1,1,1,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
 		 {1,1,1,1,1,1,1,1,1,1}},
 
 		{{1,1,1,1,1,1,1,1,1,1},
@@ -280,14 +303,36 @@ public final class Model {
 		 {1,1,1,1,1,1,1,1,1,1}},
 
 		{{1,1,1,1,1,1,1,1,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,1,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,1,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,1,1,1,1,1,1,1,1,1}},
+
+		{{1,1,1,1,1,1,1,1,1,1},
+		 {1,0,0,0,0,0,0,0,0,1},
+		 {1,1,0,0,0,0,0,0,0,1},
+		 {1,1,0,0,0,0,0,0,0,1},
 		 {1,0,0,0,0,0,0,0,0,1},
 		 {1,0,0,0,0,0,0,0,0,1},
+		 {1,1,0,0,0,0,0,0,0,1},
+		 {1,1,0,0,0,0,0,0,0,1},
 		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
+		 {1,1,1,1,1,1,1,1,1,1}},
+
+		{{1,1,1,1,1,1,1,1,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,1,0,0,0,0,0,0,1,1},
+		 {1,1,0,0,0,0,0,0,1,1},
+		 {1,1,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
 		 {1,1,1,1,1,1,1,1,1,1}},
 
 		{{1,1,1,1,1,1,1,1,1,1},
@@ -297,63 +342,30 @@ public final class Model {
 		 {1,0,0,0,0,0,0,0,0,1},
 		 {1,0,0,0,0,0,0,0,0,1},
 		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
+		 {1,1,0,0,0,0,0,0,0,1},
+		 {1,1,0,0,0,0,0,0,0,1},
+		 {1,1,1,1,1,1,1,1,1,1}},
+
+		{{1,1,1,1,1,1,1,1,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
+		 {1,1,0,0,0,0,0,0,1,1},
+		 {1,1,0,0,0,0,0,0,1,1},
+		 {1,1,0,0,0,0,0,0,1,1},
+		 {1,1,0,0,0,0,0,0,1,1},
+		 {1,1,0,0,0,0,0,0,1,1},
+		 {1,1,0,0,0,0,0,0,1,1},
+		 {1,0,0,0,0,0,0,0,1,1},
 		 {1,1,1,1,1,1,1,1,1,1}},
 
 		{{1,1,1,1,1,1,1,1,1,1},
 		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,1,1,1,1,1,1,1,1,1}},
-
-		{{1,1,1,1,1,1,1,1,1,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,1,1,1,1,1,1,1,1,1}},
-
-		{{1,1,1,1,1,1,1,1,1,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,1,1,1,1,1,1,1,1,1}},
-
-		{{1,1,1,1,1,1,1,1,1,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,1,1,1,1,1,1,1,1,1}},
-
-		{{1,1,1,1,1,1,1,1,1,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
-		 {1,0,0,0,0,0,0,0,0,1},
+		 {1,0,1,1,1,1,1,1,0,1},
+		 {1,0,1,0,0,0,0,0,0,1},
+		 {1,0,1,1,1,1,1,1,0,1},
+		 {1,0,0,0,0,0,0,1,0,1},
+		 {1,0,0,1,1,1,0,1,0,1},
+		 {1,1,1,1,0,1,1,1,0,1},
+		 {1,0,0,1,0,0,0,0,0,1},
 		 {1,1,1,1,1,1,1,1,1,1}},
 
 		{{1,1,1,1,1,1,1,1,1,1},

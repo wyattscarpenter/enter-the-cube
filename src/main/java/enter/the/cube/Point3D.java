@@ -19,6 +19,12 @@ public class Point3D { //note that this class is also used for vector math
 		this.z = 0;
 	}
 
+	public Point3D(Point3D p) {
+		this.x = p.x;
+		this.y = p.y;
+		this.z = p.z;
+	}
+
 	public boolean equals(Point3D p) {
 		return p.x == x && p.y == y && p.z == z;
 	}
@@ -53,16 +59,15 @@ public class Point3D { //note that this class is also used for vector math
 	//for code reuse/correctness reasons
 
 	//note: I have not implemented scalar add, etc. just do .add(a,a,a)
-	public void add(double x, double y, double z) {
+	public Point3D add(double x, double y, double z) {
 		this.x += x;
 		this.y += y;
 		this.z += z;
+		return this;
 	}
 
-	public void add(Point3D p) {
-		this.x = p.x;
-		this.y = p.y;
-		this.z = p.z;
+	public Point3D add(Point3D p) {
+		return add(p.x, p.y, p.z);
 	}
 
 	public void subtract(double x, double y, double z) {
@@ -132,6 +137,24 @@ public class Point3D { //note that this class is also used for vector math
 
 	public Point3D unit() {
 		return new Point3D(x/magnitude(),y/magnitude(),z/magnitude());
+	}
+
+	public Point3D perp() {
+		//from https://math.stackexchange.com/a/3582461
+		//Thanks Danvil
+		//(note: "user contributions licensed under cc by-sa 4.0 with attribution required.")
+		double s = Math.signum(z) * this.magnitude();
+		return new Point3D(s*(z+s)-x*x,-x*y,-x*(z+s));
+	}
+
+	public Point3D leftPerp2D() { //around z (this doesn't always make sense)
+		// remember that the left perp of a vector <x,y> is <-y,x>
+		return new Point3D(-y, x, z);
+	}
+
+	public Point3D rightPerp2D() { //around z (this doesn't always make sense)
+		// remember that the left perp of a vector <x,y> is <-y,x>
+		return new Point3D(y, -x, z);
 	}
 
 	public String toString() {

@@ -103,7 +103,7 @@ public final class View implements GLEventListener {
 
 		setProjection(gl);
 		drawWalls(gl);
-		wallsIn=true;
+		wallsIn=true; //this is a dumb pointless stopgap, refactor the walls to be in model to start with
 		drawGoal(gl, 350, 375);
 
 		// only draw floor in 3d. only draw player location in 2d.
@@ -118,6 +118,7 @@ public final class View implements GLEventListener {
 		drawCube(gl,100,100,100,100);
 		drawFloatingPlane(gl,model.floatingPlaneLocation.x,model.floatingPlaneLocation.y,model.floatingPlaneLocation.z);
 		drawFloatingCube(gl,model.floatingCubeLocation.x,model.floatingCubeLocation.y,model.floatingCubeLocation.z, 10);
+		drawCube(gl,model.playerLocation.x+model.lookPoint.x,model.playerLocation.y+model.lookPoint.y,model.playerLocation.z+model.lookPoint.z,1);
 		drawCubeCube(gl);
 
 		// Draw the scene
@@ -139,7 +140,7 @@ public final class View implements GLEventListener {
 		gl.glMatrixMode(GL2.GL_PROJECTION); // Prepare for matrix xform
 		gl.glLoadIdentity(); // Set to identity matrix
 		if (model.skewed) {
-			
+
 			// enable lighting
 			gl.glEnable( GLLightingFunc.GL_LIGHTING );
 			gl.glEnable( GL.GL_DEPTH_TEST );
@@ -177,10 +178,10 @@ public final class View implements GLEventListener {
 				// create the spotlight effect to make light function as a flashlight.
 				gl.glLightf(GLLightingFunc.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 20.0f);
 				gl.glLightf(GLLightingFunc.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 45.0f);
-				// make it so the light dims the further away it gets. 
+				// make it so the light dims the further away it gets.
 				gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_CONSTANT_ATTENUATION, .01f);
 				gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_LINEAR_ATTENUATION, .01f);
-				
+
 			} else {
 				gl.glEnable( GLLightingFunc.GL_LIGHT1 );
 
@@ -197,7 +198,7 @@ public final class View implements GLEventListener {
 				gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_POSITION, FloatBuffer.wrap(new float[]{1500f,1500f,1500f,1f}));
 
 				// set attenuation of the light so doesn't fade away to quickly.
-				gl.glLightf(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_LINEAR_ATTENUATION, .01f);
+				gl.glLightf(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_LINEAR_ATTENUATION, .1f);
 
 			}
 
@@ -537,12 +538,12 @@ public final class View implements GLEventListener {
 				for (int k : j) {
 					if(k==1) {
 						drawCube(gl,x,y,z,100);
-						///* test code, remove this line:*/ model.level = 2;
+						/* test code, remove this line:*/ model.level = 2; model.skewed=true;
 						if(model.level==2) {
 							Point3D pull = new Point3D(x+50,y+50,z+50);
 							pull.subtract(model.playerLocation);
 							pull.divide(pull.magnitude()*pull.magnitude());
-							pull.multiply(model.g);
+							//pull.multiply(model.g);
 							model.gravityVector.add(pull);
 						} else {
 							model.gravityVector.set(0,0,-1);
