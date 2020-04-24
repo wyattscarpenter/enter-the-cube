@@ -214,8 +214,8 @@ public final class View implements GLEventListener {
 
 	private void drawFloor(GL2 gl, double x, double y, double w, double l) {
 
-		// draw floor using many equaly sized squares.
-		// done to get visual apperance of flashlight while doing vertex shading.
+		// draw floor using many equally sized squares.
+		// done to get visual appearance of flashlight while doing vertex shading.
 		gl.glBegin(GL2.GL_QUADS);
 		for(double i = x; i + 2 <= x + w; i += 2) {
 			for(double j = y; j + 2 <= y + l; j += 2) {
