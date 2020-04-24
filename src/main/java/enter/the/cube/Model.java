@@ -30,6 +30,7 @@ public final class Model {
 	public Point3D up  = new Point3D(); //just a convenience for gravityVector.unit().multiply(-1))
 
 	public Point3D floatingPlaneLocation = new Point3D(200,200,200);
+	public Point3D floatingCubeLocation = new Point3D(345, 370,10);
 	public Point3D cubeCubeLocation = new Point3D(1000,1000,1000);
 
 	private Point3D level1Start = new Point3D(350, 75, 0);

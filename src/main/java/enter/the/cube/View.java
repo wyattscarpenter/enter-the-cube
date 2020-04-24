@@ -32,6 +32,8 @@ public final class View implements GLEventListener {
 
 	private boolean wallsIn;
 
+	private int counter;
+
 	public View(GLJPanel canvas) {
 		this.canvas = canvas;
 		canvas.setFocusTraversalKeysEnabled(false); //let tab be a game control
@@ -111,10 +113,11 @@ public final class View implements GLEventListener {
 			drawPlayer(gl);
 		}
 
-		//drawAxes(gl); //ruins program
+		drawAxes(gl); //ruins program
 
-		drawCube(gl,100,100,100);
+		drawCube(gl,100,100,100,100);
 		drawFloatingPlane(gl,model.floatingPlaneLocation.x,model.floatingPlaneLocation.y,model.floatingPlaneLocation.z);
+		drawFloatingCube(gl,model.floatingCubeLocation.x,model.floatingCubeLocation.y,model.floatingCubeLocation.z, 10);
 		drawCubeCube(gl);
 
 		// Draw the scene
@@ -375,9 +378,8 @@ public final class View implements GLEventListener {
 		if(!wallsIn){model.addWall(x, y, w, l);}
 	}
 
-	private void drawCube(GL2 gl, double x, double y, double z) { //draw a unit cube (x,y,z) to (x+1,y+1,z+1)
-		double l = 100;
-		double w = 100;
+	private void drawCube(GL2 gl, double x, double y, double z, double l) { //draw l-long cube (x,y,z) to (x+l,y+l,z+l)
+		double w = l;
 		gl.glColor3f(1, 1, 1);
 		gl.glBegin(GL2.GL_QUADS);
 		// bottom
@@ -417,9 +419,14 @@ public final class View implements GLEventListener {
 	}
 
 	private void drawFloatingPlane(GL2 gl, double x, double y, double z) {
-		//TODO: make plane float cool
 		double l = 10;
 		double w = 10;
+		gl.glPushMatrix();
+		gl.glTranslated(x+ w/2, y + l/2, z);
+		gl.glRotated(counter++, 0, 0, 1);
+		gl.glTranslated(-x - w/2, -y - l/2, -z);
+
+
 		gl.glColor3f(1, 1, 1);
 		gl.glBegin(GL2.GL_QUADS);
 		// bottom
@@ -428,11 +435,25 @@ public final class View implements GLEventListener {
 		gl.glVertex3d(x + w, y + l, z);
 		gl.glVertex3d(x, y + l, z);
 		gl.glEnd();
+
+		gl.glPopMatrix();
 	}
 
-	@SuppressWarnings("unused")
+	private void drawFloatingCube(GL2 gl, double x, double y, double z, double l) {
+		double w = l;
+		gl.glPushMatrix();
+		gl.glTranslated(x+ w/2, y + l/2, z);
+		gl.glRotated(counter++, 0, 0, 1);
+		gl.glTranslated(-x - w/2, -y - l/2, -z);
+
+		drawCube(gl, x,y,z,l);
+
+		gl.glPopMatrix();
+
+	}
+
 	private void drawAxes(GL2 gl) {
-		gl.glBegin(GL2.GL_LINE);
+		gl.glBegin(GL2.GL_LINES);
 		gl.glColor3f(255, 0, 0);
 		gl.glVertex2d(0, 0);
 		gl.glVertex2d(1000, 0);
@@ -494,7 +515,7 @@ public final class View implements GLEventListener {
 			for (int[] j : i) {
 				for (int k : j) {
 					if(k==1) {
-						drawCube(gl,x,y,z);
+						drawCube(gl,x,y,z,100);
 						///* test code, remove this line:*/ model.level = 2;
 						if(model.level==2) {
 							Point3D pull = new Point3D(x+50,y+50,z+50);
