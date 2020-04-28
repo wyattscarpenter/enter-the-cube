@@ -107,7 +107,7 @@ public final class View implements GLEventListener {
 		drawSpecialWall(gl, 557.5, 385, 20, 52.5);
 		// draw regular walls
 		drawWalls(gl);
-		wallsIn=true; 
+		wallsIn=true;
 		// draw a star where the goal is
 		drawGoal(gl, model.floatingCubeLocation.x + 5,model.floatingCubeLocation.y + 5);
 
@@ -117,13 +117,13 @@ public final class View implements GLEventListener {
 		} else {
 			drawPlayer(gl);
 		}
-		
-		// draw a cube and a floating pane in the sky. scenery. 
+
+		// draw a cube and a floating pane in the sky. scenery.
 		drawCube(gl,100,100,100,100);
 		drawFloatingPlane(gl,model.floatingPlaneLocation.x,model.floatingPlaneLocation.y,model.floatingPlaneLocation.z);
 		// draw a spinning floating cube at the goal location.
 		drawFloatingCube(gl,model.floatingCubeLocation.x,model.floatingCubeLocation.y,model.floatingCubeLocation.z, 10);
-		// draw the cube maze. This the cube also appears in the sky in the plane maze. 
+		// draw the cube maze. This the cube also appears in the sky in the plane maze.
 		drawCubeCube(gl);
 
 		gl.glFlush(); // Finish and display
@@ -154,7 +154,7 @@ public final class View implements GLEventListener {
 			gl.glEnable(GLLightingFunc.GL_COLOR_MATERIAL);
 
 			if(model.level == 1) {
-				
+
 				float[] lightColor = model.getFlashlightColor();
 				if(lightColor == null) {
 					gl.glDisable(GLLightingFunc.GL_LIGHT0);
@@ -186,9 +186,9 @@ public final class View implements GLEventListener {
 					// make it so the light dims the further away it gets.
 					gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_CONSTANT_ATTENUATION, .01f);
 					gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_LINEAR_ATTENUATION, .01f);
-				} 
+				}
 
-				
+
 
 
 			} else {
@@ -309,10 +309,10 @@ public final class View implements GLEventListener {
 
 
 	}
-	
+
 	private void drawSpecialWall(GL2 gl, double x, double y, double w, double l) {
 
-		// draw special walls. appears as a normal wall unless second light is used. 
+		// draw special walls. appears as a normal wall unless second light is used.
 		// this makes the light glow light blue.
 		// when the wall is touched make the wall spin and expand.
 		if(!model.viewWalls) {
@@ -321,7 +321,7 @@ public final class View implements GLEventListener {
 			// if flashlight color is blue make the special wall glow light blue.
 			if(model.getFlashlightCount() == 1) {
 				// set the emission color of the walls to light blue to make it seem as though the walls are glowing.
-				gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_EMISSION, FloatBuffer.wrap(new float[] {.5f,.75f,1f,1f}));	
+				gl.glMaterialfv(GL.GL_FRONT, GLLightingFunc.GL_EMISSION, FloatBuffer.wrap(new float[] {.5f,.75f,1f,1f}));
 			}
 			// set the color to the wall so that when combined with emission it will be white.
 			// this is so that the wall appears white when a flashlight is shined on it.
@@ -332,7 +332,7 @@ public final class View implements GLEventListener {
 			gl.glPushMatrix();
 			gl.glTranslated(x + w/2, y + l/2, 0);
 			gl.glRotated(model.masterWallSpin++, 0, 0, 1);
-			gl.glScaled(model.masterWallSpin,model.masterWallSpin,model.masterWallSpin); 
+			gl.glScaled(model.masterWallSpin,model.masterWallSpin,model.masterWallSpin);
 			gl.glTranslated(-(x + w/2), -(y + l/2), 0);
 			drawWall(gl, x, y, w, l);
 
@@ -418,7 +418,7 @@ public final class View implements GLEventListener {
 	}
 
 
-	
+
 	private void drawCube(GL2 gl, double x, double y, double z, double l) { //draw l-long cube (x,y,z) to (x+l,y+l,z+l)
 		double w = l;
 		gl.glColor3f(1, 1, 1);
@@ -550,7 +550,12 @@ public final class View implements GLEventListener {
 						drawCube(gl,x,y,z,100);
 						///* test code, remove this line:*/ model.level = 2; model.skewed=true;
 						if(model.level==2) {
-							Point3D pull = new Point3D(x+50,y+50,z+50);
+							/*gl.glColor3f(1, 0, 0);
+							gl.glBegin(GL2.GL_LINES);
+							gl.glVertex3d(x+50, y+50, z+50);
+							gl.glVertex3d(model.playerLocation.x, model.playerLocation.y, model.playerLocation.z);
+							gl.glEnd();*/ //doesn't work?
+							Point3D pull = new Point3D(x+50,y+50,z+50); //middle of cube
 							pull.subtract(model.playerLocation);
 							pull.divide(pull.magnitude()*pull.magnitude());
 							//pull.multiply(model.g);

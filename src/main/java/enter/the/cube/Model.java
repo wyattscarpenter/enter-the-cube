@@ -34,14 +34,14 @@ public final class Model {
 	public Point3D cubeCubeLocation = new Point3D(1000,1000,1000);
 
 	private Point3D level1Start = new Point3D(350, 75, 0);
-	private Point3D level2Start = new Point3D(1200, 1200, 1200);
+	private Point3D level2Start = new Point3D(1110, 1110, 1110);
 
 	public double masterWallSpin = 0;
 
 	public Point3D cylinderLookPoint = new Point3D();
 	private Point3D playerPlaneLookPoint  = new Point3D();
-	
-	private int flashlightColor = 0; 
+
+	private int flashlightColor = 0;
 
 	public Model(View view) {
 		this.view = view;
@@ -99,7 +99,7 @@ public final class Model {
 			return true;
 		}
 	}
-	
+
 	public float[] getFlashlightColor() {
 		if(flashlightColor == 0) {
 			return new float[] {1f,1f,1f};
@@ -109,11 +109,11 @@ public final class Model {
 			return null;
 		}
 	}
-	
+
 	public int getFlashlightCount() {
 		return flashlightColor;
 	}
-	
+
 	public void nextFlashlightColor() {
 		flashlightColor = (flashlightColor + 1) % 3;
 	}
