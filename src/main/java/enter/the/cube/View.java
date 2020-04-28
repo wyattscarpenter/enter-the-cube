@@ -153,45 +153,45 @@ public final class View implements GLEventListener {
 			gl.glColorMaterial(GL.GL_FRONT, GLLightingFunc.GL_AMBIENT_AND_DIFFUSE);
 			gl.glEnable(GLLightingFunc.GL_COLOR_MATERIAL);
 
-			if(model.level == 1) {
-				
-				float[] lightColor = model.getFlashlightColor();
-				if(lightColor == null) {
-					gl.glDisable(GLLightingFunc.GL_LIGHT0);
-				} else {
-					gl.glEnable( GLLightingFunc.GL_LIGHT0 );
-					// set the color for the flashlight
-					float[] ambient = {lightColor[0] * .6f, lightColor[1] * .6f, lightColor[2] * .6f, 1f};
-					float[] diffuse = {lightColor[0] * .6f, lightColor[1] * .6f, lightColor[2] * .6f, 1f};
-					float[] specular = {lightColor[0], lightColor[1], lightColor[2], 1f};
-
-					gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_AMBIENT, ambient, 0);
-					gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_DIFFUSE, diffuse, 0);
-					gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPECULAR, specular, 0);
-
-					// set the position of the flashlight to be at the player's eye
-					gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_POSITION, FloatBuffer.wrap(new float[]{
-							(float) model.playerLocation.x,
-							(float) model.playerLocation.y,
-							(float) model.playerLocation.z,
-							1f}));
-					// set the direction of the flashlight to be the direction the player is facing
-					gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{
-							(float) model.lookPoint.x,
-							(float) model.lookPoint.y,
-							(float) model.lookPoint.z}));
-					// create the spotlight effect to make light function as a flashlight.
-					gl.glLightf(GLLightingFunc.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 20.0f);
-					gl.glLightf(GLLightingFunc.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 45.0f);
-					// make it so the light dims the further away it gets.
-					gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_CONSTANT_ATTENUATION, .01f);
-					gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_LINEAR_ATTENUATION, .01f);
-				} 
-
-				
-
-
+			
+			
+			float[] lightColor = model.getFlashlightColor();
+			if(lightColor == null) {
+				gl.glDisable(GLLightingFunc.GL_LIGHT0);
 			} else {
+				gl.glEnable( GLLightingFunc.GL_LIGHT0 );
+				// set the color for the flashlight
+				float[] ambient = {lightColor[0] * .6f, lightColor[1] * .6f, lightColor[2] * .6f, 1f};
+				float[] diffuse = {lightColor[0] * .6f, lightColor[1] * .6f, lightColor[2] * .6f, 1f};
+				float[] specular = {lightColor[0], lightColor[1], lightColor[2], 1f};
+
+				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_AMBIENT, ambient, 0);
+				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_DIFFUSE, diffuse, 0);
+				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPECULAR, specular, 0);
+
+				// set the position of the flashlight to be at the player's eye
+				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_POSITION, FloatBuffer.wrap(new float[]{
+						(float) model.playerLocation.x,
+						(float) model.playerLocation.y,
+						(float) model.playerLocation.z,
+						1f}));
+				// set the direction of the flashlight to be the direction the player is facing
+				gl.glLightfv(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_SPOT_DIRECTION, FloatBuffer.wrap(new float[]{
+						(float) model.lookPoint.x,
+						(float) model.lookPoint.y,
+						(float) model.lookPoint.z}));
+				// create the spotlight effect to make light function as a flashlight.
+				gl.glLightf(GLLightingFunc.GL_LIGHT0, GL2.GL_SPOT_EXPONENT, 20.0f);
+				gl.glLightf(GLLightingFunc.GL_LIGHT0, GL2.GL_SPOT_CUTOFF, 45.0f);
+				// make it so the light dims the further away it gets.
+				gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_CONSTANT_ATTENUATION, .01f);
+				gl.glLightf(GLLightingFunc.GL_LIGHT0, GLLightingFunc.GL_LINEAR_ATTENUATION, .01f);
+			} 
+
+				
+
+
+			if(model.level == 2) { 
 				gl.glEnable( GLLightingFunc.GL_LIGHT1 );
 
 				// set the color for the flashlight
@@ -207,7 +207,7 @@ public final class View implements GLEventListener {
 				gl.glLightfv(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_POSITION, FloatBuffer.wrap(new float[]{1500f,1500f,1500f,1f}));
 
 				// set attenuation of the light so doesn't fade away to quickly.
-				gl.glLightf(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_LINEAR_ATTENUATION, .1f);
+				gl.glLightf(GLLightingFunc.GL_LIGHT1, GLLightingFunc.GL_LINEAR_ATTENUATION, .01f);
 
 			}
 
