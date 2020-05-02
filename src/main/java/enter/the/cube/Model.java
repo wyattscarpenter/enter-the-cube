@@ -21,6 +21,7 @@ public final class Model {
 	private int playerRadius; // size of player (radius)
 	private List<Double[]> walls; // walls in maze
 	public boolean skewed;
+	public boolean gooch = true; //implement gooch shading.
 	public boolean viewWalls = true;
 	private double stepSize = 5; // it's 5
 	public Point3D lookPoint = new Point3D(); // relative to player location
@@ -33,8 +34,8 @@ public final class Model {
 	public Point3D floatingCubeLocation = new Point3D(345, 370,10);
 	public Point3D cubeCubeLocation = new Point3D(1000,1000,1000);
 
-	private Point3D level1Start = new Point3D(350, 75, 0);
-	private Point3D level2Start = new Point3D(1110, 1110, 1110);
+	private Point3D level1Start = new Point3D(350, 370, 10); // 350, 75, 10
+	private Point3D level2Start = new Point3D(1200, 1200, 1200);
 
 	public double masterWallSpin = 0;
 
@@ -48,7 +49,7 @@ public final class Model {
 
 		// Initialize user-adjustable variables (with reasonable default values)
 		origin = new Point2D.Double(0.0, 0.0);
-		playerLocation = new Point3D(350, 75, 10);
+		playerLocation = new Point3D(level1Start);
 		walls = new ArrayList<Double[]>();
 		playerRadius = 10;
 	}
@@ -74,7 +75,8 @@ public final class Model {
 			}
 			for (int i = 0; i < walls.size(); ++i) {
 				if ((x >= walls.get(i)[0] && x <= walls.get(i)[1]) && (y >= walls.get(i)[2] && y <= walls.get(i)[3])) {
-					gravityVector.set(gravityVector.unit()); return false;
+					//gravityVector.set(gravityVector.unit());
+					return false;
 				}
 			}
 			return true;
@@ -86,7 +88,8 @@ public final class Model {
 				for (int[] j : i) {
 					for (int k : j) {
 						if(k==1 && x >= xcorner && x <= xcorner+100 && y >= ycorner && y <= ycorner+100 && z >= zcorner && z <= zcorner+100) {
-							gravityVector.set(gravityVector.unit()); return false;
+							//gravityVector.set(gravityVector.unit());
+							return false;
 						}
 						xcorner+=100;
 					}

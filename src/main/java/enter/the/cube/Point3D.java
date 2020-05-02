@@ -76,10 +76,11 @@ public class Point3D { //note that this class is also used for vector math
 		this.z -= z;
 	}
 
-	public void subtract(Point3D p) {
+	public Point3D subtract(Point3D p) {
 		this.x -= p.x;
 		this.y -= p.y;
 		this.z -= p.z;
+		return this;
 	}
 
 	public Point3D multiply(double x, double y, double z) {

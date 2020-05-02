@@ -375,6 +375,44 @@ public final class View implements GLEventListener {
 		// left
 		for(i = y; i + lSplit <= y + l ; i += lSplit) {
 			for(j = 0; j + hSplit <= wallHeight; j += hSplit) {
+
+				if(model.gooch) {
+					//do gooch
+					double blue = 0.55;
+					double yellow = 0.3;
+					double alpha = 0.25;
+					double beta = 0.5;
+					//who knew Point3D would be so useful for color?
+					Point3D kblue = new Point3D(0.0,0.0, blue);
+					Point3D kyellow = new Point3D(yellow, yellow, 0.0);
+					//"diffuse reflectance" of the surface
+					//I think this should be white
+					Point3D kd = new Point3D(1.0, 1.0, 1.0);
+					Point3D kcool = new Point3D().add(kd).multiply(alpha).add(kblue);
+					Point3D kwarm = new Point3D().add(kd).multiply(beta).add(kyellow);
+
+					//unit surface normal vector at point
+					//if I just do this for the left side of wall this should be it
+					Point3D nv = new Point3D(1.0, 0.0, 0.0);
+
+					//unit vector in direction of light source
+					//I've picked this sort of arbitrarily
+					Point3D position = new Point3D(x, i, j);
+					Point3D lightPosition = new Point3D(0, 0, 10).add(model.playerLocation);
+					Point3D iv = lightPosition.subtract(position).unit();
+
+					//eq 2
+					Point3D coolpart = new Point3D()
+							.add(kcool).multiply((1+iv.dot(nv))/2);
+					Point3D warmpart = new Point3D()
+							.add(kwarm).multiply(1-(1+iv.dot(nv))/2);
+					//final result;
+					Point3D rgb = new Point3D().add(coolpart).add(warmpart);
+
+					//use
+					gl.glColor3d(rgb.x, rgb.y, rgb.z);
+				}
+
 				gl.glVertex3d(x, i, j);
 				gl.glVertex3d(x, i + lSplit, j);
 				gl.glVertex3d(x, i + lSplit, j + hSplit);
@@ -547,16 +585,13 @@ public final class View implements GLEventListener {
 						drawCube(gl,x,y,z,100);
 						///* test code, remove this line:*/ model.level = 2; model.skewed=true;
 						if(model.level==2) {
-							/*gl.glColor3f(1, 0, 0);
-							gl.glBegin(GL2.GL_LINES);
-							gl.glVertex3d(x+50, y+50, z+50);
-							gl.glVertex3d(model.playerLocation.x, model.playerLocation.y, model.playerLocation.z);
-							gl.glEnd();*/ //doesn't work?
 							Point3D pull = new Point3D(x+50,y+50,z+50); //middle of cube
 							pull.subtract(model.playerLocation);
-							pull.divide(pull.magnitude()*pull.magnitude());
+							//System.out.println(pull);
+							pull.divide(pull.magnitude()*pull.magnitude()*pull.magnitude());
 							//pull.multiply(model.g);
 							model.gravityVector.add(pull);
+							//System.out.println("!!! "+ model.gravityVector);
 						} else {
 							model.gravityVector.set(0,0,-1);
 						}
@@ -570,6 +605,7 @@ public final class View implements GLEventListener {
 			y=model.cubeCubeLocation.y;
 		}
 		model.movePlayer(model.gravityVector.x, model.gravityVector.y, model.gravityVector.z);
+		System.out.println("!!!!!!!!!!!!!!!!!!!!!! "+ model.gravityVector);
 		model.up.set(model.gravityVector.unit().multiply(-1));
 		//model.lookPoint.multiply(model.gravityVector.unit()); //hmm
 	}
